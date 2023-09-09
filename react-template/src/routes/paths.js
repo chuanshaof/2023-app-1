@@ -38,6 +38,7 @@ export const PATH_DASHBOARD = {
     app: path(ROOTS_DASHBOARD, '/app'),
     entities: path(ROOTS_DASHBOARD, '/entities'),
     positions: path(ROOTS_DASHBOARD, '/positions'),
+    uploadPositions: path(ROOTS_DASHBOARD, '/upload-positions'),
     chat: {
       root: path(ROOTS_DASHBOARD, '/chat'),
       new: path(ROOTS_DASHBOARD, '/chat/new'),
