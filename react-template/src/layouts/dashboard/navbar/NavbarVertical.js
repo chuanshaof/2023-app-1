@@ -96,7 +96,6 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
 
       <Box sx={{ flexGrow: 1 }} />
 
-      {!isCollapse && <NavbarDocs />}
     </Scrollbar>
   );
 

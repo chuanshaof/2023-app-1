@@ -14,17 +14,9 @@ import axios from 'axios'
 // hooks
 import useSettings from '../../../../hooks/useSettings';
 // sections
-import {
-    AnalyticsTasks,
-    AnalyticsNewsUpdate,
-    AnalyticsOrderTimeline,
-    AnalyticsCurrentVisits,
-    AnalyticsWebsiteVisits,
-    AnalyticsTrafficBySite,
-    AnalyticsWidgetSummary,
-    AnalyticsCurrentSubject,
-    AnalyticsConversionRates,
-} from '.';
+
+
+import LineChart from './LineChart';
 
 
 // ----------------------------------------------------------------------
@@ -42,7 +34,7 @@ const MenuProps = {
 
 const fundIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
-export default function Query23() {
+export default function Query3() {
     const { themeStretch } = useSettings();
     const [data, setData] = useState(null);
     const [fundId, setFundId] = useState(null);
@@ -56,12 +48,14 @@ export default function Query23() {
     const handleQuery = async () => {
         const query = {
             "fund_id": fundId,
-            "startDate": startDate.toISOString().split("T")[0],
-            "endDate" : endDate.toISOString().split("T")[0],
+            "start_date": startDate.toISOString().split("T")[0],
+            "end_date" : endDate.toISOString().split("T")[0],
         }
-        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/breakdown`, query).then(
+        sessionStorage.setItem("query3", query);
+
+        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/monthly_fund_return`, query).then(
             res => {
-                console.log(res.data)}
+                setData(res.data)}
 
         )
         
@@ -104,8 +98,7 @@ export default function Query23() {
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
                 <Stack spacing={2}>
-                {  data && <AnalyticsWebsiteVisits /> }
-                { data && <AnalyticsWebsiteVisits /> }
+                { data && <LineChart data={data} title={"Monthly Investment Return of a Fund"} /> }
                 </Stack>
             </Container>
         </Box>
