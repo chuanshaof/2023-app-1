@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 // @mui
-import { Box, Grid, Container, Typography, Stack, TextField, Button, InputLabel, FormControl, MenuItem } from '@mui/material';
+import { Box, Container, Typography, Stack, Button, InputLabel, FormControl, MenuItem } from '@mui/material';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -13,6 +13,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import axios from 'axios'
 // hooks
 import useSettings from '../../../../hooks/useSettings';
+// sections
 
 import LineChart from './LineChart';
 
@@ -30,47 +31,35 @@ const MenuProps = {
   },
 };
 
+const fundIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
-export default function Query4() {
+export default function Query2() {
     const { themeStretch } = useSettings();
     const [data, setData] = useState(null);
-    const [instrumentId, setInstrumentId] = useState(null);
+    const [fundId, setFundId] = useState(null);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
 
-    const [instrumentList, setInstrumentList] = useState([]);
-
-    useEffect(() => {
-    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/instruments`).then(res => {
-        const data = res.data.map((instrument) => {
-        return {
-            ...instrument,
-            id: String(instrument.instrumentId),
-        }
-        })
-        setInstrumentList(data);
-
-    });
-    }, []);
-
-    const handleInstrumentChange = (e) => {
-        setInstrumentId(e.target.value)
+    const handleFundChange = (e) => {
+        setFundId(e.target.value)
     }
 
     const handleQuery = async () => {
         const query = {
-            "instrument_id": instrumentId,
+            "fund_id": fundId,
             "start_date": startDate.toISOString().split("T")[0],
             "end_date" : endDate.toISOString().split("T")[0],
         }
-        sessionStorage.setItem("query4", query);
-        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/monthly_instrument_return`, query).then(
+        sessionStorage.setItem("query2", query);
+
+        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/total_value`, query).then(
             res => {
                 setData(res.data)}
 
         )
         
     }
+
 
     // useEffect(() => {
     //   axios.get("http://ec2-54-169-209-187.ap-southeast-1.compute.amazonaws.com/routers").then(res => {
@@ -82,15 +71,15 @@ export default function Query4() {
         <Box>
             <Box sx={{ minWidth: 120 }}>
                 <Stack direction="row" justifyContent={"space-between"} spacing={2} sx={{ p: 4 }}>
-                <FormControl fullWidth>
-                        <InputLabel>Instrument ID</InputLabel>
+                    <FormControl fullWidth>
+                        <InputLabel>Fund ID</InputLabel>
                         <Select
-                            value={instrumentId}
-                            label="instruments"
-                            onChange={handleInstrumentChange}
+                            value={fundId}
+                            label="Type of Filter"
+                            onChange={handleFundChange}
                             MenuProps={MenuProps}
                         >
-                            {instrumentList.map((e) => <MenuItem value={e.id}> {e.id} </MenuItem>)}
+                            {fundIds.map((e) => <MenuItem value={e}> {e} </MenuItem>)}
                         </Select>
                     </FormControl>
 
@@ -108,7 +97,7 @@ export default function Query4() {
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
                 <Stack spacing={2}>
-                { data && <LineChart data={data} title={"Monthly Investment of an Instrument"}/> }
+                { data && <LineChart data={data} title={"Total Market Value"}/> }
                 </Stack>
             </Container>
         </Box>

@@ -25,7 +25,8 @@ import {
   AnalyticsCurrentSubject,
   AnalyticsConversionRates,
   Query1,
-  Query23,
+  Query2,
+  Query3,
   Query4,
   Query5
 } from '../../sections/@dashboard/general/analytics';
@@ -81,7 +82,8 @@ export default function GeneralAnalytics() {
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Stack>
         <Query1 />
-        <Query23 />
+        <Query2 />
+        <Query3 />
         <Query4 />
         <Query5 />
 
