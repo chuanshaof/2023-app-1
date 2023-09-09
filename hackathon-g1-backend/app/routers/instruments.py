@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from ..models import Instruments
 from ..database import get_db
@@ -15,11 +15,23 @@ router = APIRouter(
 
 @router.get("")
 async def get_instruments(db: Session = Depends(get_db)):
-    return db.query(Instruments).all()
+    instruments = db.query(Instruments).all()
+
+    if instruments:
+        return instruments
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No instruments found")
+
 
 @router.get("/{instrument_id}")
 def get_instrument(instrument_id: int, db: Session = Depends(get_db)):
-    return db.query(Instruments).filter(Instruments.instrumentId == instrument_id).first()
+    instrument =  db.query(Instruments).filter(Instruments.instrumentId == instrument_id).first()
+
+    if instrument:
+        return instrument
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instrument not found")
+
 
 @router.post("/{instrument_id}")
 def update_instrument(instrument_id: int, country: str, sector: str, instrumentType: str, db: Session = Depends(get_db)):
@@ -34,3 +46,5 @@ def update_instrument(instrument_id: int, country: str, sector: str, instrumentT
 
         # Commit the session to persist the changes to the database
         db.commit()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instrument not found")

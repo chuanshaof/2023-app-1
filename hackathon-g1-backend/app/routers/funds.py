@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select, and_, desc
 from sqlalchemy.orm import Session
 from ..models import Positions, Pricing
@@ -54,4 +54,18 @@ def refresh_fund(fund_id: int, db: Session = Depends(get_db)):
 
 @router.get("/{fund_id}/instruments/{instrument_id}")
 def get_instrument_fund_position(fund_id: int, instrument_id: int, db: Session = Depends(get_db)):
-    return db.query(Positions).filter(Positions.instrumentId == instrument_id).filter(Positions.fundId == fund_id).all()
+    portfolio = db.query(Positions).filter(Positions.instrumentId == instrument_id).filter(Positions.fundId == fund_id).all()
+
+    if portfolio:
+        return portfolio
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instrument-Fund pair not found")
+
+@router.get("/funds")
+def get_positions(db: Session = Depends(get_db)):
+    funds = db.query(Positions).all()
+
+    if funds:
+        return funds
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No funds not found")
