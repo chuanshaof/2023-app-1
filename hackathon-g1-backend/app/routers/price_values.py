@@ -13,6 +13,6 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get("/{instrument_id}}")
+@router.get("/{instrument_id}")
 def get_price_values(instrument_id: int, db: Session = Depends(get_db)):
     return db.query(Pricing).filter(Pricing.instrumentId == instrument_id).all()
