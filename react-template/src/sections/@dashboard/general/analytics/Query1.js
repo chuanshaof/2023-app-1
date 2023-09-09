@@ -43,7 +43,7 @@ const fundIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
 export default function Query1() {
     const { themeStretch } = useSettings();
-    const [data, setData] = useState("Hello");
+    const [data, setData] = useState(null);
     const [fundId, setFundId] = useState([]);
     const [type, setType] = useState(null);
     //   const [instrumentId, setInstrumentId] = useState(-1);
@@ -71,15 +71,18 @@ export default function Query1() {
     }
 
 
-    const handleQuery = () => {
-        console.log({
-            "fundId": fundId,
-            // "instrumentId" : instrumentId,
-            "country": country,
-            "sector": sector,
-            "startDate": startDate.toISOString(),
-            // "endDate" : endDate.toISOString()
-        })
+    const handleQuery = async () => {
+        const query = {
+            "fund_id": fundId,
+            "type" : type,
+            "date": startDate.toISOString().split("T")[0],
+        }
+        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/breakdown`, query).then(
+            res => {
+                console.log(res.data)}
+
+        )
+        
     }
 
     // useEffect(() => {
@@ -119,25 +122,6 @@ export default function Query1() {
                         </Select>
                     </FormControl>
 
-
-                    {type === "country" &&
-                        <TextField
-                            id="outlined-required"
-                            label="Country"
-                            value={country}
-                            onChange={handleCountryChange}
-                        />
-                    }
-
-                    {type === "sector" &&
-                        <TextField
-                            id="outlined-required"
-                            label="Sector"
-                            value={sector}
-                            onChange={handleSectorChange}
-                        />
-                    }
-
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker label="Date"
                             value={startDate}
@@ -148,7 +132,7 @@ export default function Query1() {
                 </Stack>
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
-                { fundId.length !== 0 && <AnalyticsCurrentVisits /> }
+                { data && <AnalyticsCurrentVisits /> }
             </Container>
         </Box>
     );

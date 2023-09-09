@@ -43,7 +43,8 @@ const MenuProps = {
 
 export default function Query4() {
     const { themeStretch } = useSettings();
-    const [instrumentId, setInstrumentId] = useState([]);
+    const [data, setData] = useState(null);
+    const [instrumentId, setInstrumentId] = useState(null);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
 
@@ -66,12 +67,18 @@ export default function Query4() {
         setInstrumentId(e.target.value)
     }
 
-    const handleQuery = () => {
-        console.log({
-            "instrumentId": instrumentId,
-            "startDate": startDate.toISOString(),
-            "endDate" : endDate.toISOString()
-        })
+    const handleQuery = async () => {
+        const query = {
+            "instrument_id": instrumentId,
+            "startDate": startDate.toISOString().split("T")[0],
+            "endDate" : endDate.toISOString().split("T")[0],
+        }
+        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/breakdown`, query).then(
+            res => {
+                console.log(res.data)}
+
+        )
+        
     }
 
     // useEffect(() => {
@@ -90,7 +97,6 @@ export default function Query4() {
                             value={instrumentId}
                             label="instruments"
                             onChange={handleInstrumentChange}
-                            multiple
                             MenuProps={MenuProps}
                         >
                             {instrumentList.map((e) => <MenuItem value={e.id}> {e.id} </MenuItem>)}
@@ -111,7 +117,7 @@ export default function Query4() {
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
                 <Stack spacing={2}>
-                { instrumentId.length !== 0 && <AnalyticsWebsiteVisits /> }
+                { data && <AnalyticsWebsiteVisits /> }
                 </Stack>
             </Container>
         </Box>
