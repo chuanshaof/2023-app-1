@@ -1,6 +1,7 @@
 import { sentenceCase } from 'change-case';
-import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -20,6 +21,7 @@ import {
   TextField,
   Modal,
   Stack,
+  Link,
   FormControl,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -43,14 +45,15 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
-  { id: '' },
-];
+
+const TABLE_HEAD2 = [
+  { id: 'instrumentName', label: 'Instrument Name', alignRight: false },
+  { id: 'instrumentType', label: 'Instrument Type', alignRight: false },
+  { id: 'currency', label: 'Currency', alignRight: false },
+  { id: 'country', label: 'Country', alignRight: false },
+  { id: 'industry', label: 'Industry', alignRight: false },
+  { id: 'sector', label: 'Sector', alignRight: false },
+]
 
 const modalStyle = {
   position: 'absolute',
@@ -66,10 +69,9 @@ const modalStyle = {
 
 // ----------------------------------------------------------------------
 
-export default function UserList() {
-  const theme = useTheme();
+export default function InstrumentPrices() {
   const { themeStretch } = useSettings();
-
+  const navigate = useNavigate();
   const [userList, setUserList] = useState(_userList);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
@@ -77,7 +79,20 @@ export default function UserList() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [instrumentList, setInstrumentList] = useState([]);
+  const { id } = useParams();
+  useEffect(() => {
+    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/instruments`).then(res => {
+      const data = res.data.map((instrument) => {
+        return {
+          ...instrument,
+          id: String(instrument.instrumentId),
+        }
+      })
+      setInstrumentList(data);
 
+    });
+  }, []);
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -86,7 +101,7 @@ export default function UserList() {
 
   const handleSelectAllClick = (checked) => {
     if (checked) {
-      const newSelecteds = userList.map((n) => n.name);
+      const newSelecteds = instrumentList.map((n) => n.instrumentName);
       setSelected(newSelecteds);
       return;
     }
@@ -118,23 +133,11 @@ export default function UserList() {
     setPage(0);
   };
 
-  const handleDeleteUser = (userId) => {
-    const deleteUser = userList.filter((user) => user.id !== userId);
-    setSelected([]);
-    setUserList(deleteUser);
-  };
-
-  const handleDeleteMultiUser = (selected) => {
-    const deleteUsers = userList.filter((user) => !selected.includes(user.name));
-    setSelected([]);
-    setUserList(deleteUsers);
-  };
-
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
-  const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
-
-  const isNotFound = !filteredUsers.length && Boolean(filterName);
+  // const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
+  const filteredInstruments = applySortFilter(instrumentList, getComparator(order, orderBy), filterName);
+  const isNotFound = !filteredInstruments.length && Boolean(filterName);
   const [modalOpen, setModalOpen] = useState(false);
   const [file, setFile] = useState(null);
   const handleFileChange = async (e) => {
@@ -210,10 +213,10 @@ export default function UserList() {
         <Container maxWidth={themeStretch ? false : 'lg'}>
           
           <HeaderBreadcrumbs
-            heading="Positions"
+            heading="Instruments"
             links={[
               { name: 'Dashboard', href: PATH_DASHBOARD.root },
-              { name: 'Positions' },
+              { name: 'Instruments' },
             ]}
             action={
               <Button
@@ -231,7 +234,6 @@ export default function UserList() {
               numSelected={selected.length}
               filterName={filterName}
               onFilterName={handleFilterByName}
-              onDeleteUsers={() => handleDeleteMultiUser(selected)}
             />
 
             <Scrollbar>
@@ -240,58 +242,43 @@ export default function UserList() {
                   <UserListHead
                     order={order}
                     orderBy={orderBy}
-                    headLabel={TABLE_HEAD}
-                    rowCount={userList.length}
-                    numSelected={selected.length}
+                    headLabel={TABLE_HEAD2}
+                    rowCount={instrumentList.length}
+                    // numSelected={selected.length}
                     onRequestSort={handleRequestSort}
                     onSelectAllClick={handleSelectAllClick}
                   />
                   <TableBody>
-                    {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                      const isItemSelected = selected.indexOf(name) !== -1;
-
+                    {filteredInstruments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                      const { id, instrumentName, instrumentType, currency, country, industry, sector } = row;
+                      // const isItemSelected = selected.indexOf(instrumentName) !== -1;
+  
                       return (
+                        
                         <TableRow
                           hover
                           key={id}
-                          tabIndex={-1}
-                          role="checkbox"
-                          selected={isItemSelected}
-                          aria-checked={isItemSelected}
+                          component={Link}
+                          onClick={() => navigate(`/dashboard/instruments/${id}`)}
+                          to={`/dashboard/instruments/${id}`}
+                          // tabIndex={-1}
+                          // role="checkbox"
+                          // selected={isItemSelected}
+                          // aria-checked={isItemSelected}
                         >
-                          <TableCell padding="checkbox">
-                            <Checkbox checked={isItemSelected} onClick={() => handleClick(name)} />
-                          </TableCell>
-                          <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{role}</TableCell>
-                          <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-                          <TableCell align="left">
-                            <Label
-                              variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                              color={(status === 'banned' && 'error') || 'success'}
-                            >
-                              {sentenceCase(status)}
-                            </Label>
-                          </TableCell>
-
-                          <TableCell align="right">
-                            <UserMoreMenu onDelete={() => handleDeleteUser(id)} userName={name} />
-                          </TableCell>
+                          {/* <TableCell padding="checkbox">
+                            <Checkbox checked={isItemSelected} onClick={() => handleClick(instrumentName)} />
+                          </TableCell> */}
+                          <TableCell align="left">{instrumentName}</TableCell>
+                          <TableCell align="left">{instrumentType}</TableCell>
+                          <TableCell align="left">{currency}</TableCell>
+                          <TableCell align="left">{country}</TableCell>
+                          <TableCell align="left">{industry}</TableCell>
+                          <TableCell align="left">{sector}</TableCell>
                         </TableRow>
+                        
                       );
                     })}
-                    {emptyRows > 0 && (
-                      <TableRow style={{ height: 53 * emptyRows }}>
-                        <TableCell colSpan={6} />
-                      </TableRow>
-                    )}
                   </TableBody>
                   {isNotFound && (
                     <TableBody>
@@ -309,7 +296,7 @@ export default function UserList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={userList.length}
+              count={filteredInstruments.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={(e, page) => setPage(page)}
@@ -348,7 +335,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return array.filter((_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return array.filter((instrument) => instrument.instrumentName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
