@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers.routers import router as router
+from .routers.funds import router as funds
+from .routers.instruments import router as instruments
+from .routers.price_values import router as price_values
 from .routers.genai import router as genai_router
-
 
 origins = ["*"]
 
@@ -16,14 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+app.include_router(funds)
+app.include_router(instruments)
+app.include_router(price_values)
 app.include_router(genai_router)
-
-
-# @app.get("/")
-# def read_root():
-#     return {"Hello": "Wosrlddd"}
-
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: str = None):
-#     return {"item_id": item_id, "q": q}
