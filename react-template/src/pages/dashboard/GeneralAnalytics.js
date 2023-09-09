@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 // @mui
 import { Grid, Container, Typography } from '@mui/material';
+
+import axios from 'axios'
 // hooks
 import useSettings from '../../hooks/useSettings';
 // components
@@ -17,16 +20,24 @@ import {
   AnalyticsConversionRates,
 } from '../../sections/@dashboard/general/analytics';
 
+
 // ----------------------------------------------------------------------
 
 export default function GeneralAnalytics() {
   const { themeStretch } = useSettings();
+  const [data, setData] = useState("Hello");
+
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/routers").then(res => {
+      setData(res.data.Hello)
+    });
+  });
 
   return (
     <Page title="General: Analytics">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Hi, Welcome back
+          {data}
         </Typography>
 
         <Grid container spacing={3}>
@@ -83,6 +94,14 @@ export default function GeneralAnalytics() {
             <AnalyticsTasks />
           </Grid>
         </Grid>
+      </Container>
+      <Container>
+
+        <iframe
+          title="aws"
+          width={960}
+          height={720}
+          src="https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/265971165621/dashboards/2d237abb-1200-4cd5-85e4-791848f53f63?directory_alias=gic-team01" />
       </Container>
     </Page>
   );
