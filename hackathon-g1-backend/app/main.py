@@ -4,6 +4,7 @@ from .routers.funds import router as funds
 from .routers.instruments import router as instruments
 from .routers.price_values import router as price_values
 from .routers.genai import router as genai_router
+from .routers.injestor import router as injestor
 
 origins = ["*"]
 
@@ -21,3 +22,4 @@ app.include_router(funds)
 app.include_router(instruments)
 app.include_router(price_values)
 app.include_router(genai_router)
+app.include_router(injestor)

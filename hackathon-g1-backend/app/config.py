@@ -15,6 +15,6 @@ class Settings(BaseSettings):
     ORIGINS: str = "*"
     ALGORITHM: str = "HS256"
     ANTHROPIC_API_KEY: str = os.environ.get("ANTHROPIC_API_KEY")
-
+    AWS_RDS_API_KEY: str = os.environ.get("AWS_RDS_API_KEY")
 
 settings = Settings()
