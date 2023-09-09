@@ -24,9 +24,10 @@ class Instruments(Base):
     industry = Column(String)
     
     prices = relationship("Prices", back_populates="instrument")
+    positions = relationship("Positions", back_populates="instrument")
 
 class Prices(Base):
-    __tablename__ = 'prices'
+    __tablename__ = 'pricing'
 
     instrumentId = Column(Integer, ForeignKey('instruments.instrumentId'), primary_key=True)
     unitPrice = Column(Float)

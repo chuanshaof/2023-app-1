@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from ..models import Prices
+from ..database import get_db
 
 router = APIRouter()
 
@@ -11,5 +14,5 @@ router = APIRouter(
 )
 
 @router.get("/{instrument_id}}")
-def get_price_values(instrument_id: int):
-    return {}
+def get_price_values(instrument_id: int, db: Session = Depends(get_db)):
+    return db.query(Prices).filter(Prices.instrumentId == instrument_id).all()

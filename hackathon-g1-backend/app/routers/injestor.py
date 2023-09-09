@@ -1,13 +1,14 @@
-from fastapi import APIRouter, UploadFile
+from fastapi import APIRouter, UploadFile, Depends
 import pandas as pd
 from dateutil import parser
-from sqlalchemy import create_engine, text
-from ..config import settings
+from sqlalchemy.orm import Session
+from ..database import get_db
+from ..models import Instruments, Prices, Positions, Funds
 
 router = APIRouter()
 
 @router.post("/injestor")
-def injestor(file: UploadFile):
+def injestor(file: UploadFile, db: Session = Depends(get_db)):
     INSTRUMENTS_COLS = ["instrumentName", 
                         "instrumentType",
                         "currency",
@@ -55,18 +56,23 @@ def injestor(file: UploadFile):
         # SYMBOL is optional
 
         df = pd.read_csv(file.file)
-        rds_engine = create_engine(settings.AWS_RDS_API_KEY)
-
-        with rds_engine.connect() as connection:
-            result = connection.execute(text("SELECT * FROM instruments"))
-            for row in result:
-                print(row)
 
         # user = rds_db.query(User).filter(User.email == email).first()
         # Cross-check with instrument table
         #   1. "SECURITY_NAME" with "instrumentName" from instruments table
-        #   2. "SYMBOL" with "symbol" from instruments table
         #   Output: Get instrumentId
+        
+        instrumentIds = []
+        # db.query(Instruments).filter(Instruments.instrumentName == instrumentName).first()
+        for index, row in df.iterrows():
+            instrumentId = db.query(Instruments).filter(Instruments.instrumentName == row["SECURITY NAME"]).first()
+            instrumentIds.append(instrumentId)
+
+        df["instrumentId"] = instrumentIds
+
+        print(df)
+        
+
 
         
 
@@ -82,11 +88,3 @@ def injestor(file: UploadFile):
         #       1.2. if "fundName" exists, obtain "fundId"
 
         # check if price exists              
-
-        # if not, create instrument
-
-
-
-    
-
-    pass
