@@ -81,16 +81,9 @@ export default function InstrumentPrices() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [instrumentList, setInstrumentList] = useState([]);
   const { id } = useParams();
-  console.log("DDDDDD", id)
   useEffect(() => {
-    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/instruments`).then(res => {
-      const data = res.data.map((instrument) => {
-        return {
-          ...instrument,
-          id: String(instrument.instrumentId),
-        }
-      })
-      setInstrumentList(data);
+    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/price-values/${id}}`).then(res => {
+      console.log("ASDASD", res.data);
 
     });
   }, []);
