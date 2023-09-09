@@ -61,7 +61,7 @@ def get_instrument_fund_position(fund_id: int, instrument_id: int, db: Session =
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instrument-Fund pair not found")
 
-@router.get("/funds")
+@router.get("")
 def get_positions(db: Session = Depends(get_db)):
     funds = db.query(Positions).all()
 
