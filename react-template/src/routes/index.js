@@ -44,8 +44,13 @@ export default function Router() {
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
         { path: 'app', element: <GeneralAnalytics /> },
         { path: 'entities', element: <UserList /> },
-        { path: 'positions', element: <PositionUpload /> },
-        { path: 'upload-positions', element: <PositionUpload /> },
+        {
+          path: 'instruments',
+          children: [
+            {element: <Instruments />,},
+            { path: ':id', element: <InstrumentPrices /> },
+          ],
+        },
         {
           path: 'chat',
           children: [
@@ -170,7 +175,8 @@ const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')
 const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));
 const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
 const Mail = Loadable(lazy(() => import('../pages/dashboard/Mail')));
-const PositionUpload = Loadable(lazy(() => import('../pages/PositionUpload')));
+const Instruments = Loadable(lazy(() => import('../pages/Instruments')));
+const InstrumentPrices = Loadable(lazy(() => import('../pages/InstrumentPrices')));
 const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
 const Kanban = Loadable(lazy(() => import('../pages/dashboard/Kanban')));
 // Main

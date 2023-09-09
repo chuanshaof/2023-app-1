@@ -30,7 +30,7 @@ const navConfig = [
     items: [
       { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.analytics },
       { title: 'entities', path: PATH_DASHBOARD.general.entities, icon: ICONS.banking },
-      { title: 'positions', path: PATH_DASHBOARD.general.positions, icon: ICONS.ecommerce },
+      { title: 'instruments', path: PATH_DASHBOARD.general.instruments, icon: ICONS.ecommerce },
       { title: 'chat', path: PATH_DASHBOARD.general.chat.root, icon: ICONS.chat },
       { title: 'upload', path: PATH_DASHBOARD.general.uploadPositions, icon: ICONS.chat },
       // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics },
