@@ -47,7 +47,7 @@ export default function Router() {
         {
           path: 'instruments',
           children: [
-            {element: <Instruments />,},
+            { element: <Instruments />, index: true },
             { path: ':id', element: <InstrumentPrices /> },
           ],
         },
