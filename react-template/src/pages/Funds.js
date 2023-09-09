@@ -173,6 +173,15 @@ export default function Funds() {
       }
     }
   };
+
+  const submitFile = async() => {
+      const formData = new FormData();
+      formData.append("file", file)
+      await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/ingestor`, formData, {})
+
+      window.location.reload()
+  }
+
   return (
     <>
       <Modal
@@ -243,11 +252,7 @@ export default function Funds() {
           <Typography id="modal-modal-title" variant="h6" component="h2" sx={{paddingBottom: 2, textAlign: "center"}}>
             Upload CSV
           </Typography>
-          <form id="upload-csv-form"
-            onSubmit={async () => {
-              // TODO: upload file to backend
-              console.log("VVVV", file)
-            }}
+          <form id="upload-csv-form" onSubmit="event.preventDefault();"
           >
             <FormControl sx={{width: "100%"}}>
               <Button
@@ -266,7 +271,7 @@ export default function Funds() {
                 />
               </Button>
               <Button 
-                type="submit"
+                onClick={submitFile}
               >
                 submit
               </Button>

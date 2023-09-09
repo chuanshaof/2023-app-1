@@ -41,13 +41,26 @@ const MenuProps = {
 };
 
 
-const instrumentIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-
 export default function Query4() {
     const { themeStretch } = useSettings();
     const [instrumentId, setInstrumentId] = useState([]);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
+
+    const [instrumentList, setInstrumentList] = useState([]);
+
+    useEffect(() => {
+    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/instruments`).then(res => {
+        const data = res.data.map((instrument) => {
+        return {
+            ...instrument,
+            id: String(instrument.instrumentId),
+        }
+        })
+        setInstrumentList(data);
+
+    });
+    }, []);
 
     const handleInstrumentChange = (e) => {
         setInstrumentId(e.target.value)
@@ -80,7 +93,7 @@ export default function Query4() {
                             multiple
                             MenuProps={MenuProps}
                         >
-                            {instrumentIds.map((e) => <MenuItem value={e}> {e} </MenuItem>)}
+                            {instrumentList.map((e) => <MenuItem value={e.id}> {e.id} </MenuItem>)}
                         </Select>
                     </FormControl>
 
