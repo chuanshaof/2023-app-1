@@ -32,18 +32,24 @@ import {
 
 export default function Query5() {
     const { themeStretch } = useSettings();
+    const [data, setData] = useState(null);
     const [nvalues, setNvalues] = useState(null);
 
     const handleNvaluesChange = (e) => {
         setNvalues(e.target.value)
     }
 
-
-
-    const handleQuery = () => {
-        console.log({
+    
+    const handleQuery = async () => {
+        const query = {
             "nValues": nvalues
-        })
+        }
+        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/breakdown`, query).then(
+            res => {
+                console.log(res.data)}
+
+        )
+        
     }
 
     // useEffect(() => {
@@ -72,7 +78,7 @@ export default function Query5() {
                 </Stack>
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
-                {nvalues && <AnalyticsConversionRates />}
+                {data && <AnalyticsConversionRates />}
             </Container>
         </Box>
     );
