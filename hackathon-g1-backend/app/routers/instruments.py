@@ -44,23 +44,18 @@ def get_instruments():
     data = []
 
     for row in rows:
-        print(row)
         data.append(dict(zip(INSTRUMENTS_COLS, row)))
 
     return data
 
 @router.get("/{instrument_id}")
 def get_instrument(instrument_id: int):
-    # engine = create_engine(settings.AWS_RDS_API_KEY)
+    rds_engine = create_engine(settings.AWS_RDS_API_KEY)
 
-    # Session = sessionmaker(bind=engine)
-    # session = Session()
+    with rds_engine.connect() as connection:
+        result = connection.execute(text(f"SELECT * FROM instruments WHERE instrumentId = {instrument_id}"))
 
-
-    # result = session.execute(text(f"SELECT * FROM instrument WHERE instrumentId = {instrument_id}"))
-
-    # print(result)
-    return {}
+        return dict(zip(INSTRUMENTS_COLS, result.fetchone()))
 
 @router.post("/{instrument_id}")
 def update_instrument(instrument_id: int):
