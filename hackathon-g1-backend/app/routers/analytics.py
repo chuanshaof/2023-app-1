@@ -9,7 +9,7 @@ from sqlalchemy import select, func, and_
 from dateutil.relativedelta import relativedelta
 
 from ..database import get_db
-from ..models import Instruments, Positions
+from ..models import Funds, Instruments, Positions
 
 
 router = APIRouter()
@@ -190,9 +190,12 @@ def retrieve_monthly_instrument_return(params: MonthlyReturnParams, db: Session 
 
 class TopNParams(BaseModel):
     n: int
-    date: datetime
+    date: datetime.date
 
 @router.post("/top_n")
 def retrieve_top_n_funds(params: TopNParams, db: Session = Depends(get_db)):
-    
+    funds = db.execute(select(Funds.fundId)).all()
+    for fund_id, in funds:
+        
+        pass
     pass
