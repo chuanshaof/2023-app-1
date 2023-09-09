@@ -195,7 +195,14 @@ class TopNParams(BaseModel):
 @router.post("/top_n")
 def retrieve_top_n_funds(params: TopNParams, db: Session = Depends(get_db)):
     funds = db.execute(select(Funds.fundId)).all()
+    tops = []
+    start_date = params.date - relativedelta(months=12)
     for fund_id, in funds:
-        
-        pass
-    pass
+        old_val = get_fund_market_value(fund_id, start_date, db)
+        if(old_val):
+            new_val = get_fund_market_value(fund_id, params.date,db)
+            inv_ret = (new_val / old_val) - 1
+            tops.append((inv_ret, fund_id))
+    tops.sort(reverse=True)
+
+    return {"fund_ids": [t[1] for t in tops], "values": [t[0] for t in tops]}
