@@ -99,7 +99,7 @@ function InstrumentPriceChart(chartData, instrument) {
       y: {
         formatter: (y) => {
           if (typeof y !== 'undefined') {
-            return `${y.toFixed(3)} ${instrument?.currency ?? ''}`;
+            return `${y.toFixed(3)} ${instrument?.currency ?? 'USD'}`;
           }
           return y;
         },
@@ -242,7 +242,7 @@ export default function InstrumentPrices() {
   const isNotFound = !priceList.length;
   return (
     <>
-      <Page title="User: List">
+      <Page title="Instrument">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
             heading="Instruments"

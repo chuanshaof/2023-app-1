@@ -274,9 +274,8 @@ export default function Funds() {
           </form>
         </Box>
       </Modal>
-      <Page title="User: List">
+      <Page title="Funds">
         <Container maxWidth={themeStretch ? false : 'lg'}>
-          
           <HeaderBreadcrumbs
             heading="Funds"
             links={[
@@ -286,10 +285,10 @@ export default function Funds() {
             action={
               <Button
                 variant="contained"
-                onClick={() => setModalOpen(!modalOpen)}
-                startIcon={<Iconify icon={'eva:cloud-upload-outline'} />}
+                onClick={() => {}}
+                startIcon={<Iconify icon={'eva:refresh-fill'} />}
               >
-                Add CSV
+               Refresh Position
               </Button>
             }
           />
