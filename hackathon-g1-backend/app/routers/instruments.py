@@ -31,7 +31,6 @@ def update_instrument(instrument_id: int, country: str, sector: str, instrumentT
         instrument.country = country
         instrument.sector = sector
         instrument.instrumentType = instrumentType
-        # Update other attributes as needed
 
         # Commit the session to persist the changes to the database
         db.commit()

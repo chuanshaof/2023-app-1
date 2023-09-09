@@ -3,92 +3,126 @@ import pandas as pd
 from dateutil import parser
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Instruments, Prices, Positions, Funds
+from ..models import Instruments, Pricing, Positions, Funds
 
 router = APIRouter()
 
 @router.post("/injestor")
 def injestor(file: UploadFile, db: Session = Depends(get_db)):
-    INSTRUMENTS_COLS = ["instrumentName", 
-                        "instrumentType",
-                        "currency",
-                        "isinCode",
-                        "sedolCode",
-                        "symbol",
-                        "country",
-                        "sector",
-                        "coupon",
-                        "maturityDate",
-                        "couponFrequency",
-                        "industry"]
-
-    PRICES_COLS = ["instrumentId",
-                    "unitPrice",
-                    "reportedDate"]
-
-    POSITIONS_COLS = ["quantity",
-                    "marketValue",
-                    "realisedProfitLoss",
-                    "reportedDate"]
-
-    csv_map = {
-        "FINANCIAL TYPE": INSTRUMENTS_COLS[1],
-        "SYMBOL": INSTRUMENTS_COLS[5],
-        "SECURITY NAME": INSTRUMENTS_COLS[0],
-        "ISIN": INSTRUMENTS_COLS[3],
-        "SEDOL": INSTRUMENTS_COLS[4],
-        "PRICE": PRICES_COLS[1],
-        "QUANTITY": POSITIONS_COLS[0],
-        "REALISED P/L": POSITIONS_COLS[2],
-        "MARKET VALUE": POSITIONS_COLS[1]
-    }
-
     if not file:
         return {"error": "No file provided"}
     else:
-        # ASSUMPTION: reportedDate is in the file name
-        # ASSUMPTION: fundName is in the file name
+        '''
+        Obtaining `fundName` and `reportedDate` from the file name
+        '''
         fundName = file.filename.split(".")[0].split("-")[-1].split(" ")[-1]
         reportedDate = file.filename.split(".")[1].split(" ")[0].replace("_", "-")
         reportedDate = parser.parse(reportedDate).date()
 
-        # SEDOL/ISIN is optional
-        # SYMBOL is optional
+        '''
+        Cross-check with funds table
+            1. "fundName" with funds table
+                1.1. if "fundName" does not exist, create new fund
+                1.2. if "fundName" exists, obtain "fundId"
+        '''
+        fund = db.query(Funds).filter(Funds.fundName == fundName).first()
+        if not fund:
+            fund = Funds(
+                fundName = fundName,
+            )
+            db.add(fund)    
+            db.commit()
 
+        fundId = fund.fundId
+
+
+        '''
+        Renaming and mapping dataframe columns
+        '''
         df = pd.read_csv(file.file)
 
-        # user = rds_db.query(User).filter(User.email == email).first()
-        # Cross-check with instrument table
-        #   1. "SECURITY_NAME" with "instrumentName" from instruments table
-        #   Output: Get instrumentId
+        csv_map = {
+            "FINANCIAL TYPE": "instrumentType",
+            "SYMBOL": "symbol",
+            "SECURITY NAME": "instrumentName",
+            "ISIN": "isinCode",
+            "SEDOL": "sedolCode",
+            "PRICE": "unitPrice",
+            "QUANTITY": "quantity",
+            "REALISED P/L": "realisedProfitLoss",
+            "MARKET VALUE": "marketValue"
+        }
+
+        for key, value in csv_map.items():
+            if key in df.columns:
+                df.rename(columns={key: value}, inplace=True)
         
+
+        '''
+        Cross-check with `instrument` table
+        For instrumentId(s) not found, we will drop the row
+            1. "SECURITY_NAME" with "instrumentName" from instruments table
+            Result: Get instrumentId & populate the dataframe
+        '''
         instrumentIds = []
-        # db.query(Instruments).filter(Instruments.instrumentName == instrumentName).first()
         for index, row in df.iterrows():
-            instrument = db.query(Instruments).filter(Instruments.instrumentName == row["SECURITY NAME"]).first()
-            
-            print(instrument.instrumentId)
+            instrument = db.query(Instruments).filter(Instruments.instrumentName == row["instrumentName"]).first()
+            if instrument:
+                instrumentIds.append(instrument.instrumentId)
+            else:
+                instrumentIds.append(None)
 
         df["instrumentId"] = instrumentIds
+        # filtered_df = df[df['instrumentId'].isnull()]
+        # print(filtered_df)
+        df = df[df['instrumentId'].notna()]
 
 
-        print(df["instrumentId"])
+        '''
+        Updating/populating `price` table
+            1. Compare new col "instrumentId" with "instrumentId" from price table
+            2. "REPORTED_DATE" with "reportedDate" from price table
+                2.1. if "REPORTED_DATE" does not exist, create new price
+                2.2. if "REPORTED_DATE" exists, update price
+        '''
+        for index, row in df.iterrows():
+            pricing = db.query(Pricing).filter(Pricing.instrumentId == row["instrumentId"]).filter(Pricing.reportedDate == reportedDate).first()
+            
+            if pricing:
+                pricing.unitPrice = row["unitPrice"]
+            else:
+                pricing = Pricing(
+                    instrumentId = row["instrumentId"],
+                    unitPrice = row["unitPrice"],
+                    reportedDate = reportedDate,
+                )
 
-        print(df)
-        
+                db.add(pricing)                
+    
+        '''
+        Updating/populating `positions` table
+            1. Composite Key should be 
+        '''
+        for index, row in df.iterrows():
+            position = db.query(Positions) \
+                .filter(Positions.instrumentId == row["instrumentId"]) \
+                .filter(Positions.fundId == fundId) \
+                .filter(Positions.reportedDate == reportedDate).first()
 
+            if position:
+                position.quantity = row["quantity"]
+                position.marketValue = row["marketValue"]
+                position.realisedProfitLoss = row["realisedProfitLoss"]
+            else:
+                position = Positions(
+                    fundId = fundId,
+                    instrumentId = row["instrumentId"],
+                    quantity = row["quantity"],
+                    marketValue = row["marketValue"],
+                    realisedProfitLoss = row["realisedProfitLoss"],
+                    reportedDate = reportedDate
+                )
 
-        
+                db.add(position)
 
-        # Cross-check with price table
-        #   1. new col "instrumentId" with "instrumentId" from price table
-        #   2. "REPORTED_DATE" with "reportedDate" from price table
-        #       2.1. if "REPORTED_DATE" does not exist, create new price
-        #       2.2. if "REPORTED_DATE" exists, update price
-        
-        # Cross-check with funds table
-        #   1. "fundName" with funds table
-        #       1.1. if "fundName" does not exist, create new fund
-        #       1.2. if "fundName" exists, obtain "fundId"
-
-        # check if price exists              
+        db.commit()

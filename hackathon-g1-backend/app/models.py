@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Double, Date, ForeignKey
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
@@ -7,7 +7,7 @@ Base = declarative_base()
 class Instruments(Base):
     __tablename__ = 'instruments'
 
-    instrumentId = Column(Integer, primary_key=True)
+    instrumentId = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     instrumentName = Column(String)
     instrumentType = Column(String)
     currency = Column(String)
@@ -23,10 +23,10 @@ class Instruments(Base):
     couponFrequency = Column(String)
     industry = Column(String)
     
-    prices = relationship("Prices", back_populates="instrument")
+    pricing = relationship("Pricing", back_populates="instrument")
     positions = relationship("Positions", back_populates="instrument")
 
-class Prices(Base):
+class Pricing(Base):
     __tablename__ = 'pricing'
 
     instrumentId = Column(Integer, ForeignKey('instruments.instrumentId'), primary_key=True)
@@ -35,14 +35,14 @@ class Prices(Base):
     createdAt = Column(Date)
     modifiedAt = Column(Date)
 
-    instrument = relationship("Instruments", back_populates="prices")
+    instrument = relationship("Instruments", back_populates="pricing")
 
 class Positions(Base):
     __tablename__ = 'positions'
 
-    fundID = Column(Integer, ForeignKey('funds.fundID'), primary_key=True)
+    fundId = Column(Integer, ForeignKey('funds.fundId'), primary_key=True)
     instrumentId = Column(Integer, ForeignKey('instruments.instrumentId'), primary_key=True)
-    quantity = Column(Float)
+    quantity = Column(Double)
     marketValue = Column(Float)
     realisedProfitLoss = Column(Float)
     reportedDate = Column(Date, primary_key=True)
@@ -55,7 +55,7 @@ class Positions(Base):
 class Funds(Base):
     __tablename__ = 'funds'
 
-    fundID = Column(Integer, primary_key=True)
+    fundId = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     fundName = Column(String)
     
     positions = relationship("Positions", back_populates="funds")
