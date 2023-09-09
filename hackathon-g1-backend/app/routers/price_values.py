@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from ..models import Pricing
 from ..database import get_db
@@ -15,4 +15,9 @@ router = APIRouter(
 
 @router.get("/{instrument_id}")
 def get_price_values(instrument_id: int, db: Session = Depends(get_db)):
-    return db.query(Pricing).filter(Pricing.instrumentId == instrument_id).all()
+    priceValues = db.query(Pricing).filter(Pricing.instrumentId == instrument_id).all()
+    
+    if priceValues:
+        return priceValues
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instrument not found")
