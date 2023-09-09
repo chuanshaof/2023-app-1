@@ -61,6 +61,7 @@ const TABLE_HEAD2 = [
   { id: 'country', label: 'Country', alignRight: false },
   { id: 'industry', label: 'Industry', alignRight: false },
   { id: 'sector', label: 'Sector', alignRight: false },
+  { id: 'edit', label: 'Edit', alignRight: false },
 ]
 
 const modalStyle = {
@@ -154,26 +155,26 @@ export default function Instrument() {
   const filteredInstruments = applySortFilter(instrumentList, getComparator(order, orderBy), filterName);
   const isNotFound = !filteredInstruments.length && Boolean(filterName);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editInstrumentId, setEditInstrumentId] = useState(null);
+  const [editInstrumentCountry, setEditInstrumentCountry] = useState(null);
+  const [editInstrumentSector, setEditInstrumentSector] = useState(null);
+  const [editInstrumentType, setEditInstrumentType] = useState(null);
   const [file, setFile] = useState(null);
   const handleFileChange = async (e) => {
     if (e.target.files) {
       try {
         const fileData = e.target.files[0];
-        // 1. create url from the file
-        const fileUrl = URL.createObjectURL(fileData);
-        // 2. use fetch API to read the file
-        const response = await fetch(fileUrl);
-
-        // 3. get the text from the response
-        const text = await response.text();
-
-        const lines = text.split("\n");
-
-        const _data = lines.map((line) => line.split(","));
-        // setFile(_data);
+        // // 1. create url from the file
+        // const fileUrl = URL.createObjectURL(fileData);
+        // // 2. use fetch API to read the file
+        // const response = await fetch(fileUrl);
+        // // 3. get the text from the response
+        // const text = await response.text();
+        // const lines = text.split("\n");
+        // const _data = lines.map((line) => line.split(","));
         setFile(fileData)
-        // console.log(file.data)
-        // console.log()
+
       } catch (error) {
         console.error(error);
       }
@@ -181,6 +182,63 @@ export default function Instrument() {
   };
   return (
     <>
+      <Modal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <form id="edit-instrument-form">
+          <Box sx={modalStyle}>
+            <Typography id="modal-modal-title" variant="h6" component="h2" sx={{paddingBottom: 2, textAlign: "center"}}>
+              Edit Instrument
+            </Typography>
+            <FormControl sx={{width: "100%"}}>
+              <TextField
+                id="edit-instrument-id"
+                label="Instrument ID"
+                variant="outlined"
+                value={editInstrumentId}
+                onChange={(e) => setEditInstrumentId(e.target.value)}
+                sx={{paddingBottom: 2}}
+                disabled
+              />
+              <TextField
+                id="edit-instrument-country"
+                label="Country"
+                variant="outlined"
+                required
+                value={editInstrumentCountry}
+                onChange={(e) => setEditInstrumentCountry(e.target.value)}
+                sx={{paddingBottom: 2}}
+              />
+              <TextField
+                id="edit-instrument-sector"
+                label="Sector"
+                variant="outlined"
+                required
+                value={editInstrumentSector}
+                onChange={(e) => setEditInstrumentSector(e.target.value)}
+                sx={{paddingBottom: 2}}
+              />
+              <TextField
+                id="edit-instrument-type"
+                label="Type"
+                required
+                variant="outlined"
+                value={editInstrumentType}
+                onChange={(e) => setEditInstrumentType(e.target.value)}
+                sx={{paddingBottom: 2}}
+              />
+               <Button
+                  type="submit"
+                >
+                submit
+              </Button>
+            </FormControl>
+          </Box>
+        </form>
+      </Modal>
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -216,8 +274,7 @@ export default function Instrument() {
               </Button>
               <Button 
                 type="submit"
-                onClick={() => {
-              }}>
+              >
                 submit
               </Button>
             </FormControl>
@@ -273,23 +330,34 @@ export default function Instrument() {
                         <TableRow
                           hover
                           key={id}
-                          component={Link}
-                          onClick={() => navigate(`/dashboard/instruments/${id}`)}
-                          to={`/dashboard/instruments/${id}`}
-                          // tabIndex={-1}
-                          // role="checkbox"
-                          // selected={isItemSelected}
-                          // aria-checked={isItemSelected}
                         >
                           {/* <TableCell padding="checkbox">
                             <Checkbox checked={isItemSelected} onClick={() => handleClick(instrumentName)} />
                           </TableCell> */}
-                          <TableCell align="left">{instrumentName}</TableCell>
+                          <TableCell
+                            align="left"
+                            component={Link}
+                            onClick={() => navigate(`/dashboard/instruments/${id}`)}
+                            to={`/dashboard/instruments/${id}`}
+                          >{instrumentName}</TableCell>
                           <TableCell align="left">{instrumentType}</TableCell>
                           <TableCell align="left">{currency}</TableCell>
                           <TableCell align="left">{country}</TableCell>
                           <TableCell align="left">{industry}</TableCell>
                           <TableCell align="left">{sector}</TableCell>
+                          <TableCell>
+                            <Button
+                              onClick={() => {
+                                setEditInstrumentId(id);
+                                setEditInstrumentCountry(country);
+                                setEditInstrumentSector(sector);
+                                setEditInstrumentType(instrumentType);
+                                setEditModalOpen(true);
+                              }}
+                            >
+                              <Iconify icon={'eva:edit-outline'} />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                         
                       );
