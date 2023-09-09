@@ -44,7 +44,8 @@ const fundIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
 export default function Query23() {
     const { themeStretch } = useSettings();
-    const [fundId, setFundId] = useState([]);
+    const [data, setData] = useState(null);
+    const [fundId, setFundId] = useState(null);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
 
@@ -52,13 +53,20 @@ export default function Query23() {
         setFundId(e.target.value)
     }
 
-    const handleQuery = () => {
-        console.log({
-            "fundId": fundId,
-            "startDate": startDate.toISOString(),
-            "endDate" : endDate.toISOString()
-        })
+    const handleQuery = async () => {
+        const query = {
+            "fund_id": fundId,
+            "startDate": startDate.toISOString().split("T")[0],
+            "endDate" : endDate.toISOString().split("T")[0],
+        }
+        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/breakdown`, query).then(
+            res => {
+                console.log(res.data)}
+
+        )
+        
     }
+
 
     // useEffect(() => {
     //   axios.get("http://ec2-54-169-209-187.ap-southeast-1.compute.amazonaws.com/routers").then(res => {
@@ -76,7 +84,6 @@ export default function Query23() {
                             value={fundId}
                             label="Type of Filter"
                             onChange={handleFundChange}
-                            multiple
                             MenuProps={MenuProps}
                         >
                             {fundIds.map((e) => <MenuItem value={e}> {e} </MenuItem>)}
@@ -97,8 +104,8 @@ export default function Query23() {
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
                 <Stack spacing={2}>
-                { fundId.length !== 0 && <AnalyticsWebsiteVisits /> }
-                { fundId.length !== 0 && <AnalyticsWebsiteVisits /> }
+                {  data && <AnalyticsWebsiteVisits /> }
+                { data && <AnalyticsWebsiteVisits /> }
                 </Stack>
             </Container>
         </Box>
