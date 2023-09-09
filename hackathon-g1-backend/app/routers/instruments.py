@@ -33,7 +33,7 @@ def get_instrument(instrument_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instrument not found")
 
 
-@router.post("/{instrument_id}")
+@router.put("/{instrument_id}")
 def update_instrument(instrument_id: int, country: str, sector: str, instrumentType: str, db: Session = Depends(get_db)):
     # Retrieve the existing record you want to update (e.g., by primary key)
     instrument = db.query(Instruments).filter(Instruments.instrumentId == instrument_id).first()
