@@ -87,8 +87,8 @@ export default function Instrument() {
   const [userList, setUserList] = useState(_userList);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
-  const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
+  const [selected, setSelected] = useState([]);
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [instrumentList, setInstrumentList] = useState([]);
