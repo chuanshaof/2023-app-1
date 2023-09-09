@@ -21,6 +21,8 @@ import NavbarDocs from './NavbarDocs';
 import NavbarAccount from './NavbarAccount';
 import CollapseButton from './CollapseButton';
 
+import MainLogo from '../../../assets/gic-logo.png';
+
 // ----------------------------------------------------------------------
 
 const RootStyle = styled('div')(({ theme }) => ({
@@ -74,14 +76,20 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
         }}
       >
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Logo />
-
+          {/* <Logo /> */}
+          <Box
+            component="img"
+            src={MainLogo}
+            alt="GIC Logo"
+            width={50}
+            height={75}
+          />
           {isDesktop && !isCollapse && (
             <CollapseButton onToggleCollapse={onToggleCollapse} collapseClick={collapseClick} />
           )}
         </Stack>
 
-        <NavbarAccount isCollapse={isCollapse} />
+        {/* <NavbarAccount isCollapse={isCollapse} /> */}
       </Stack>
 
       <NavSectionVertical navConfig={navConfig} isCollapse={isCollapse} />

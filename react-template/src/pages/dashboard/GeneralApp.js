@@ -1,5 +1,6 @@
 // @mui
 import {useState, useEffect} from 'react';
+import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { Container, Grid, Stack, Typography } from '@mui/material';
 // hooks
@@ -7,6 +8,7 @@ import useAuth from '../../hooks/useAuth';
 import useSettings from '../../hooks/useSettings';
 // components
 import Page from '../../components/Page';
+
 // sections
 import {
   AppWidget,
@@ -28,6 +30,12 @@ export default function GeneralApp() {
   const theme = useTheme();
   const { themeStretch } = useSettings();
   const [data, setData] = useState("Hello");
+
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/routers").then(res => {
+      setData(res.data.Hello)
+    });
+  });
 
   return (
     <Page title="General: App">

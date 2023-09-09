@@ -36,6 +36,14 @@ export const PATH_DASHBOARD = {
   root: ROOTS_DASHBOARD,
   general: {
     app: path(ROOTS_DASHBOARD, '/app'),
+    entities: path(ROOTS_DASHBOARD, '/entities'),
+    positions: path(ROOTS_DASHBOARD, '/positions'),
+    chat: {
+      root: path(ROOTS_DASHBOARD, '/chat'),
+      new: path(ROOTS_DASHBOARD, '/chat/new'),
+      conversation: path(ROOTS_DASHBOARD, '/chat/:conversationKey')
+    },
+
     ecommerce: path(ROOTS_DASHBOARD, '/ecommerce'),
     analytics: path(ROOTS_DASHBOARD, '/analytics'),
     banking: path(ROOTS_DASHBOARD, '/banking'),
