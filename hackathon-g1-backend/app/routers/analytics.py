@@ -21,16 +21,22 @@ router = APIRouter(
 )
 
 def get_fund_by_date_query(fund_id, date):
-    return select(
-                Positions
-            ).where(
-                Positions.fundID == fund_id
-            ).group_by(
-                Positions.instrumentId
-            ).having(
-                Positions.reportedDate == func.max(Positions.reportedDate)
-                and func.max(Positions.reportedDate) <= date
-            ).subquery()
+    subq = select(
+               func.max(Positions.reportedDate).label('maxdate'), 
+               Positions.instrumentId, 
+               Positions.fundID
+           ).where(
+               Positions.reportedDate <= date
+           ).group_by(Positions.instrumentId)
+    subq = subq.subquery()
+    query = select(
+                Positions,
+            ).select_from(Positions).join(subq, 
+                                        and_(Positions.instrumentId == subq.c.instrumentId,
+                                            subq.c.maxdate == Positions.reportedDate,
+                                            subq.c.fundID == Positions.fundID)
+            )
+    return query
 
 class BreakdownTypes(Enum):
     INSTRUMENTS = 'instruments'
@@ -50,7 +56,8 @@ def retrieve_breakdown(params: BreakdownParams, db: Session = Depends(get_db)):
                Positions.instrumentId, 
                Positions.fundId
            ).where(
-               Positions.fundId == params.fund_id
+               Positions.fundId == params.fund_id,
+               Positions.reportedDate <= params.date
            ).group_by(Positions.instrumentId).subquery()
 
     
