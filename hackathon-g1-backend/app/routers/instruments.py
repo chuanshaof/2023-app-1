@@ -1,8 +1,6 @@
 from fastapi import APIRouter
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from ..config import settings
-import json
+from sqlalchemy import text
+from ..config import rds_engine
 
 router = APIRouter()
 
@@ -32,9 +30,6 @@ INSTRUMENTS_COLS = ["instrumentId",
 
 @router.get("")
 def get_instruments():
-        
-    rds_engine = create_engine(settings.AWS_RDS_API_KEY)
-
     rows = []
     with rds_engine.connect() as connection:
         result = connection.execute(text("SELECT * FROM instruments"))
@@ -50,8 +45,6 @@ def get_instruments():
 
 @router.get("/{instrument_id}")
 def get_instrument(instrument_id: int):
-    rds_engine = create_engine(settings.AWS_RDS_API_KEY)
-
     with rds_engine.connect() as connection:
         result = connection.execute(text(f"SELECT * FROM instruments WHERE instrumentId = {instrument_id}"))
 

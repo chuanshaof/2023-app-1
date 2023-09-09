@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings
 import base64
 import os
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
 
 load_dotenv()
 
@@ -18,3 +19,4 @@ class Settings(BaseSettings):
     AWS_RDS_API_KEY: str = os.environ.get("AWS_RDS_API_KEY")
 
 settings = Settings()
+rds_engine = create_engine(settings.AWS_RDS_API_KEY)
