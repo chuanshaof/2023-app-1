@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, Depends
 import pandas as pd
+import numpy as np
 from dateutil import parser
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -59,6 +60,8 @@ def ingestor(file: UploadFile, db: Session = Depends(get_db)):
             else:
                 df[value] = None
 
+        df = df.replace({np.nan: None})
+
         # Dropping "CASH" row
         df = df[df["instrumentName"] != "CASH"]
 
@@ -67,6 +70,7 @@ def ingestor(file: UploadFile, db: Session = Depends(get_db)):
             1. "SECURITY_NAME" with "instrumentName" from instruments table
                 1.1. If "SECURITY_NAME" found, just map
                 1.2. If "SECURITY_NAME" not found, creates a new instrument
+            2. Update the instrument if necessary
             
             Result: Get instrumentId & populate the dataframe
         '''
@@ -74,6 +78,12 @@ def ingestor(file: UploadFile, db: Session = Depends(get_db)):
         for index, row in df.iterrows():
             instrument = db.query(Instruments).filter(Instruments.instrumentName == row["instrumentName"]).first()
             if instrument:
+                # Update data that may be different
+                for column_name, column_data in row.items():
+                    import math
+                    if column_data:
+                        setattr(instrument, column_name, column_data)
+
                 instrumentIds.append(instrument.instrumentId)
             else:
                 instrument = Instruments(
