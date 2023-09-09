@@ -39,7 +39,6 @@ export default function ChatMessageList({ conversation }) {
 
   return (
     <>
-      <Scrollbar scrollableNodeProps={{ ref: scrollRef }} sx={{ p: 3, height: 1 }}>
         {conversation.messages.map((message) => (
           <ChatMessageItem
             key={message.id}
@@ -48,16 +47,6 @@ export default function ChatMessageList({ conversation }) {
             onOpenLightbox={handleOpenLightbox}
           />
         ))}
-      </Scrollbar>
-
-      <LightboxModal
-        images={imagesLightbox}
-        mainSrc={imagesLightbox[selectedImage]}
-        photoIndex={selectedImage}
-        setPhotoIndex={setSelectedImage}
-        isOpen={openLightbox}
-        onCloseRequest={() => setOpenLightbox(false)}
-      />
     </>
   );
 }

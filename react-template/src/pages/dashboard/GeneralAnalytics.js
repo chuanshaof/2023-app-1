@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 // @mui
-import { Grid, Container, Typography } from '@mui/material';
+import { Box, Grid, Container, Typography, Stack, TextField, Button } from '@mui/material';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
+
 
 import axios from 'axios'
 // hooks
@@ -18,31 +24,71 @@ import {
   AnalyticsWidgetSummary,
   AnalyticsCurrentSubject,
   AnalyticsConversionRates,
+  Query1,
+  Query23,
+  Query4,
+  Query5
 } from '../../sections/@dashboard/general/analytics';
 
 
 // ----------------------------------------------------------------------
 
+
 export default function GeneralAnalytics() {
   const { themeStretch } = useSettings();
   const [data, setData] = useState("Hello");
+  const [fundId, setFundId] = useState(1);
+  const [instrumentId, setInstrumentId] = useState(-1);
+  const [country, setCountry] = useState("");
+  const [sector, setSector] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
-  useEffect(() => {
-    axios.get("http://127.0.0.1:8000/routers").then(res => {
-      setData(res.data.Hello)
-    });
-  });
+  const handleFundChange = (e) =>{
+    setFundId(e.target.value)
+  }
+
+  const handleInstrumentChange = (e) =>{
+    setInstrumentId(e.target.value)
+  }
+  const handleCountryChange = (e) =>{
+    setCountry(e.target.value)
+  }
+  const handleSectorChange = (e) =>{
+    setSector(e.target.value)
+  }
+
+
+  const handleQuery = () =>{
+      console.log({
+        "fundId" : fundId,
+        "instrumentId" : instrumentId,
+        "country" : country,
+        "sector" : sector,
+        "startDate" : startDate.toISOString(),
+        "endDate" : endDate.toISOString()
+      })
+  }
+
+  // useEffect(() => {
+  //   axios.get("http://ec2-54-169-209-187.ap-southeast-1.compute.amazonaws.com/routers").then(res => {
+  //     setData(res.data.Hello)
+  //   });
+  // });
 
   return (
-    <Page title="General: Analytics">
+    <Page title="General: Analytics" >
       <Container maxWidth={themeStretch ? false : 'xl'}>
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          {data}
-        </Typography>
+        <Stack>
+        <Query1 />
+        <Query23 />
+        <Query4 />
+        <Query5 />
 
-        <Grid container spacing={3}>
+        </Stack>
+        {/* <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={3}>
-            <AnalyticsWidgetSummary title="Weekly Sales" total={714000} icon={'ant-design:android-filled'} />
+            
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
@@ -93,16 +139,13 @@ export default function GeneralAnalytics() {
           <Grid item xs={12} md={6} lg={8}>
             <AnalyticsTasks />
           </Grid>
-        </Grid>
+        </Grid> */}
       </Container>
-      <Container>
-
-        <iframe
-          title="aws"
-          width={960}
-          height={720}
-          src="https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/265971165621/dashboards/2d237abb-1200-4cd5-85e4-791848f53f63?directory_alias=gic-team01" />
-      </Container>
+      {/* <iframe
+        width={"100%"}
+        height={"1000px"}
+        title="dashboard"
+        src="https://ap-southeast-1.quicksight.aws.amazon.com/sn/embed/share/accounts/265971165621/dashboards/cde89cd2-8731-4e36-800e-c071074852eb?directory_alias=gic-team01" /> */}
     </Page>
   );
 }

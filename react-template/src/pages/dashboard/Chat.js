@@ -20,7 +20,7 @@ export default function Chat() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getConversations());
+    // dispatch(getConversations());
     dispatch(getContacts());
   }, [dispatch]);
 

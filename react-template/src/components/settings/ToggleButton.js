@@ -61,7 +61,7 @@ export default function ToggleButton({ notDefault, open, onToggle }) {
             },
           }}
         >
-          <Iconify icon="eva:options-2-fill" width={20} height={20} />
+          <Iconify icon="eva:message-square-outline" width={20} height={20} />
         </IconButtonAnimate>
       </Tooltip>
     </RootStyle>

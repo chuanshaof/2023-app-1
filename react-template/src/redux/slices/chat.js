@@ -4,6 +4,8 @@ import axios from '../../utils/axios';
 //
 import { dispatch } from '../store';
 
+import chatData from './chatData.json';
+
 // ----------------------------------------------------------------------
 
 function objFromArray(array, key = 'id') {
@@ -152,10 +154,7 @@ export function getConversation(conversationKey) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/chat/conversation', {
-        params: { conversationKey },
-      });
-      dispatch(slice.actions.getConversationSuccess(response.data.conversation));
+      dispatch(slice.actions.getConversationSuccess(chatData.conversation));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

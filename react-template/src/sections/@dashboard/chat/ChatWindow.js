@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 // @mui
 import { Box, Divider, Stack } from '@mui/material';
 // redux
 import { useDispatch, useSelector } from '../../../redux/store';
+import Scrollbar from '../../../components/Scrollbar';
 import {
   addRecipients,
   onSendMessage,
@@ -26,6 +27,7 @@ import ChatHeaderCompose from './ChatHeaderCompose';
 const conversationSelector = (state) => {
   const { conversations, activeConversationId } = state.chat;
   const conversation = activeConversationId ? conversations.byId[activeConversationId] : null;
+ 
   if (conversation) {
     return conversation;
   }
@@ -43,14 +45,16 @@ export default function ChatWindow() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { conversationKey } = useParams();
+  const conversationKey = "reece.chung";
   const { contacts, recipients, participants, activeConversationId } = useSelector((state) => state.chat);
   const conversation = useSelector((state) => conversationSelector(state));
+  const scrollRef = useRef(null);
 
   const mode = conversationKey ? 'DETAIL' : 'COMPOSE';
   const displayParticipants = participants.filter((item) => item.id !== '8864c717-587d-472a-929a-8e5f298024da-0');
 
   useEffect(() => {
+    console.log(conversationKey)
     const getDetails = async () => {
       dispatch(getParticipants(conversationKey));
       try {
@@ -88,7 +92,7 @@ export default function ChatWindow() {
 
   return (
     <Stack sx={{ flexGrow: 1, minWidth: '1px' }}>
-      {mode === 'DETAIL' ? (
+      {/* {mode === 'DETAIL' ? (
         <ChatHeaderDetail participants={displayParticipants} />
       ) : (
         <ChatHeaderCompose
@@ -96,25 +100,26 @@ export default function ChatWindow() {
           contacts={Object.values(contacts.byId)}
           onAddRecipients={handleAddRecipients}
         />
-      )}
+      )} */}
 
       <Divider />
 
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
         <Stack sx={{ flexGrow: 1 }}>
-          <ChatMessageList conversation={conversation} />
 
-          <Divider />
+        <Scrollbar scrollableNodeProps={{ ref: scrollRef }} sx={{ p: 3, height: 1 }}>
+          <ChatMessageList conversation={conversation} />
+        </Scrollbar>
+        </Stack>
+      </Box>
+
+      <Divider />
 
           <ChatMessageInput
             conversationId={activeConversationId}
             onSend={handleSendMessage}
             disabled={pathname === PATH_DASHBOARD.chat.new}
           />
-        </Stack>
-
-        {mode === 'DETAIL' && <ChatRoom conversation={conversation} participants={displayParticipants} />}
-      </Box>
     </Stack>
   );
 }

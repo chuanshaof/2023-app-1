@@ -52,6 +52,10 @@ export default function Router() {
           ],
         },
         {
+          path: 'funds',
+          element: <Funds />,
+        },
+        {
           path: 'chat',
           children: [
             { element: <Chat />, index: true },
@@ -179,6 +183,7 @@ const Instruments = Loadable(lazy(() => import('../pages/Instruments')));
 const InstrumentPrices = Loadable(lazy(() => import('../pages/InstrumentPrices')));
 const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));
 const Kanban = Loadable(lazy(() => import('../pages/dashboard/Kanban')));
+const Funds = Loadable(lazy(() => import('../pages/Funds')));
 // Main
 const HomePage = Loadable(lazy(() => import('../pages/Home')));
 const About = Loadable(lazy(() => import('../pages/About')));

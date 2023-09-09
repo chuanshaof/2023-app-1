@@ -1,0 +1,37 @@
+{
+    "conversation": {
+        "id": "e99f09a7-dd88-49d5-b1c8-1daf80c2d7b5",
+        "participants": [
+            {
+                "id": "8864c717-587d-472a-929a-8e5f298024da-0",
+                "avatar": "https://minimal-assets-api.vercel.app/assets/images/avatars/avatar_15.jpg",
+                "name": "Jaydon Frankie",
+                "username": "jaydon.frankie"
+            },
+            {
+                "id": "e99f09a7-dd88-49d5-b1c8-1daf80c2d7b5",
+                "name": "Reece Chung",
+                "username": "reece.chung",
+                "avatar": "https://minimal-assets-api.vercel.app/assets/images/avatars/avatar_5.jpg",
+                "address": "36901 Elmer Spurs Apt. 762 - Miramar, DE / 92836",
+                "phone": "990-588-5716",
+                "email": "letha_lubowitz24@yahoo.com",
+                "lastActivity": "2023-09-05T10:56:29.249Z",
+                "status": "busy",
+                "position": "UX Designer"
+            }
+        ],
+        "type": "ONE_TO_ONE",
+        "unreadCount": 0,
+        "messages": [
+            {
+                "id": "fe8fd739-a513-48e6-b298-1a8360aac059",
+                "body": "Hi! How can I help you?",
+                "contentType": "text",
+                "attachments": [],
+                "createdAt": "2023-09-09T04:56:29.251Z",
+                "senderId": "e99f09a7-dd88-49d5-b1c8-1daf80c2d7b5"
+            }
+        ]
+    }
+}
