@@ -7,8 +7,8 @@ from ..models import Instruments, Pricing, Positions, Funds
 
 router = APIRouter()
 
-@router.post("/injestor")
-def injestor(file: UploadFile, db: Session = Depends(get_db)):
+@router.post("/ingestor")
+def ingestor(file: UploadFile, db: Session = Depends(get_db)):
     if not file:
         return {"error": "No file provided"}
     else:
@@ -56,12 +56,18 @@ def injestor(file: UploadFile, db: Session = Depends(get_db)):
         for key, value in csv_map.items():
             if key in df.columns:
                 df.rename(columns={key: value}, inplace=True)
-        
+            else:
+                df[value] = None
+
+        # Dropping "CASH" row
+        df = df[df["instrumentName"] != "CASH"]
 
         '''
         Cross-check with `instrument` table
-        For instrumentId(s) not found, we will drop the row
             1. "SECURITY_NAME" with "instrumentName" from instruments table
+                1.1. If "SECURITY_NAME" found, just map
+                1.2. If "SECURITY_NAME" not found, creates a new instrument
+            
             Result: Get instrumentId & populate the dataframe
         '''
         instrumentIds = []
@@ -70,13 +76,25 @@ def injestor(file: UploadFile, db: Session = Depends(get_db)):
             if instrument:
                 instrumentIds.append(instrument.instrumentId)
             else:
-                instrumentIds.append(None)
+                instrument = Instruments(
+                    instrumentName = row["instrumentName"],
+                    instrumentType = row["instrumentType"],
+                    currency = "USD",
+                    isinCode = row["isinCode"],
+                    sedolCode = row['sedolCode'],
+                    symbol = row["symbol"],
+                    country = "ZZ",
+                    sector = "Unknown",
+                )
+
+                db.add(instrument)    
+                db.commit()
+                instrumentIds.append(instrument.instrumentId)
 
         df["instrumentId"] = instrumentIds
         # filtered_df = df[df['instrumentId'].isnull()]
         # print(filtered_df)
         df = df[df['instrumentId'].notna()]
-
 
         '''
         Updating/populating `price` table
