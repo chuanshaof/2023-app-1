@@ -65,10 +65,14 @@ def injestor(file: UploadFile, db: Session = Depends(get_db)):
         instrumentIds = []
         # db.query(Instruments).filter(Instruments.instrumentName == instrumentName).first()
         for index, row in df.iterrows():
-            instrumentId = db.query(Instruments).filter(Instruments.instrumentName == row["SECURITY NAME"]).first()
-            instrumentIds.append(instrumentId)
+            instrument = db.query(Instruments).filter(Instruments.instrumentName == row["SECURITY NAME"]).first()
+            
+            print(instrument.instrumentId)
 
         df["instrumentId"] = instrumentIds
+
+
+        print(df["instrumentId"])
 
         print(df)
         
