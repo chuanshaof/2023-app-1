@@ -156,6 +156,12 @@ export default function Instrument() {
   const [editInstrumentSector, setEditInstrumentSector] = useState(null);
   const [editInstrumentType, setEditInstrumentType] = useState(null);
   const [file, setFile] = useState(null);
+  const submitEditForm = async() => {
+
+    await axios.put(`${process?.env.REACT_APP_BACKEND_URL}/instruments/${editInstrumentId}?country=${editInstrumentCountry}&sector=${editInstrumentSector}&instrumentType=${editInstrumentType}`)
+    window.location.reload()
+
+  }
   const handleFileChange = async (e) => {
     if (e.target.files) {
       try {
@@ -183,7 +189,7 @@ export default function Instrument() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <form id="edit-instrument-form">
+        <form id="edit-instrument-form" onSubmit="event.preventDefault();">
           <Box sx={modalStyle}>
             <Typography id="modal-modal-title" variant="h6" component="h2" sx={{paddingBottom: 2, textAlign: "center"}}>
               Edit Instrument
@@ -226,7 +232,7 @@ export default function Instrument() {
                 sx={{paddingBottom: 2}}
               />
                <Button
-                  type="submit"
+                  onClick={submitEditForm}
                 >
                 submit
               </Button>
