@@ -91,7 +91,7 @@ export default function Instrument() {
   const [instrumentList, setInstrumentList] = useState([]);
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BACKEND_URL}/instruments`).then(res => {
+    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/instruments`).then(res => {
       const data = res.data.map((instrument) => {
         return {
           ...instrument,
@@ -146,12 +146,6 @@ export default function Instrument() {
     const deleteUser = userList.filter((user) => user.id !== userId);
     setSelected([]);
     setUserList(deleteUser);
-  };
-
-  const handleDeleteMultiUser = (selected) => {
-    const deleteUsers = userList.filter((user) => !selected.includes(user.name));
-    setSelected([]);
-    setUserList(deleteUsers);
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
@@ -255,7 +249,6 @@ export default function Instrument() {
               numSelected={selected.length}
               filterName={filterName}
               onFilterName={handleFilterByName}
-              onDeleteUsers={() => handleDeleteMultiUser(selected)}
             />
 
             <Scrollbar>
