@@ -93,6 +93,14 @@ export default function Instrument() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [instrumentList, setInstrumentList] = useState([]);
 
+  const submitFile = async() => {
+    const formData = new FormData();
+    formData.append("file", file)
+    await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/ingestor`, formData, {})
+
+    window.location.reload()
+  }
+
   useEffect(() => {
     axios.get(`${process?.env.REACT_APP_BACKEND_URL}/instruments`).then(res => {
       const data = res.data.map((instrument) => {
@@ -237,12 +245,7 @@ export default function Instrument() {
           <Typography id="modal-modal-title" variant="h6" component="h2" sx={{paddingBottom: 2, textAlign: "center"}}>
             Upload CSV
           </Typography>
-          <form id="upload-csv-form"
-            onSubmit={async () => {
-              // TODO: upload file to backend
-              console.log("VVVV", file)
-            }}
-          >
+          <form id="upload-csv-form" onSubmit="event.preventDefault();">
             <FormControl sx={{width: "100%"}}>
               <Button
                 variant="contained"
@@ -260,7 +263,7 @@ export default function Instrument() {
                 />
               </Button>
               <Button 
-                type="submit"
+                onClick={submitFile}
               >
                 submit
               </Button>
