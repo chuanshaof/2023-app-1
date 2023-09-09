@@ -22,6 +22,15 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+def get_funds():
+    res = next(get_db()).execute(select(Funds))
+    fund_ids = []
+    fund_names = []
+    for fund, in res:
+        fund_ids.append(fund.fundId)
+        fund_names.append(fund.fundName)
+    return {"fundId": fund_ids, "fundName": fund_names}
+
 def get_fund_market_value(fund_id, date, db):
     subq = select(
                 func.max(Positions.reportedDate).label('maxdate'), 
@@ -86,16 +95,16 @@ class BreakdownTypes(Enum):
     SECTOR = 'sector'
 
 class BreakdownParams(BaseModel):
-    fund_id: int 
-    type: BreakdownTypes
-    date: datetime.date = Field(description='')
+    fund_id: int = Field(ge=1)
+    type: BreakdownTypes = Field(...)
+    date: datetime.date = Field(...)
 
 
 @router.post("/breakdown")
 def retrieve_breakdown_handler(params: BreakdownParams, db: Session = Depends(get_db)):
     return retrieve_breakdown(params.fund_id, params.type, params.date, db)
 
-def retrieve_breakdown(fund_id, breakdown_type, date, db):
+def retrieve_breakdown(fund_id, breakdown_type, date, db = next(get_db())):
     subq = select(
                func.max(Positions.reportedDate).label('maxdate'), 
                Positions.instrumentId, 
@@ -130,15 +139,15 @@ def retrieve_breakdown(fund_id, breakdown_type, date, db):
     return {"types": types, "values": values}
 
 class TotalValueParams(BaseModel):
-    fund_id: int
-    start_date: datetime.date
-    end_date: datetime.date
+    fund_id: int = Field(ge=1)
+    start_date: datetime.date = Field(...)
+    end_date: datetime.date = Field(...)
 
 @router.post("/total_value")
 def retrieve_total_market_value_handler(params: TotalValueParams, db: Session = Depends(get_db)):
     return retrieve_total_market_value(params.fund_id, params.start_date, params.end_date, db)
 
-def retrieve_total_market_value(fund_id, start_date, end_date, db):
+def retrieve_total_market_value(fund_id, start_date, end_date, db = next(get_db())):
     dates = []
     values = []
     curr_date = start_date
@@ -152,16 +161,16 @@ def retrieve_total_market_value(fund_id, start_date, end_date, db):
     return {"dates": dates, "values": values}
 
 class MonthlyReturnParams(BaseModel):
-    fund_id: Optional[int] = None
-    instrument_id: Optional[int] = None
-    start_date: datetime.date
-    end_date: datetime.date
+    fund_id: Optional[int] = Field(None)
+    instrument_id: Optional[int] = Field(None)
+    start_date: datetime.date = Field(...)
+    end_date: datetime.date = Field(...)
 
 @router.post("/monthly_fund_return")
 def retrieve_monthly_fund_return_handler(params: MonthlyReturnParams, db: Session = Depends(get_db)):
     return retrieve_monthly_fund_return(params.fund_id, params.start_date, params.end_date, db)
 
-def retrieve_monthly_fund_return(fund_id, start_date, end_date, db):
+def retrieve_monthly_fund_return(fund_id, start_date, end_date, db = next(get_db())):
     dates = []
     inv_rets = []
     curr_val = get_fund_market_value(fund_id, start_date, db)
@@ -181,7 +190,7 @@ def retrieve_monthly_fund_return(fund_id, start_date, end_date, db):
 def retrieve_monthly_instrument_return_handler(params: MonthlyReturnParams, db: Session = Depends(get_db)):
     return retrieve_monthly_instrument_return(params.instrument_id, params.start_date, params.end_date, db)
 
-def retrieve_monthly_instrument_return(instrument_id, start_date, end_date, db):
+def retrieve_monthly_instrument_return(instrument_id, start_date, end_date, db = next(get_db())):
     dates = []
     inv_rets = []
     curr_val = get_instrument_market_value(instrument_id, start_date, db)
@@ -200,15 +209,15 @@ def retrieve_monthly_instrument_return(instrument_id, start_date, end_date, db):
     return {"dates": dates, "values": inv_rets}
 
 class TopNParams(BaseModel):
-    n: int
-    months: int
-    date: datetime.date
+    n: int = Field(ge=0)
+    months: int = Field(ge=1)
+    date: datetime.date = Field(...)
 
 @router.post("/top_n")
 def retrieve_top_n_funds_handler(params: TopNParams, db: Session = Depends(get_db)):
     return retrieve_top_n_funds(params.n, params.months, params.date, db)
 
-def retrieve_top_n_funds(n, months, date, db):
+def retrieve_top_n_funds(n, months, date, db = next(get_db())):
     funds = db.execute(select(Funds.fundId)).all()
     tops = []
     start_date = date - relativedelta(months=months)
