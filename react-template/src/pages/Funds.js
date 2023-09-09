@@ -55,15 +55,7 @@ const TABLE_HEAD = [
 ];
 
 const TABLE_HEAD2 = [
-  { id: 'instrumentName', label: 'Instrument Name', alignRight: false },
-  { id: 'instrumentType', label: 'Instrument Type', alignRight: false },
-  { id: 'currency', label: 'Currency', alignRight: false },
-  { id: 'country', label: 'Country', alignRight: false },
-  { id: 'industry', label: 'Industry', alignRight: false },
-  { id: 'sector', label: 'Sector', alignRight: false },
-  { id: 'createdAt', label: 'Created At', alignRight: false},
-  { id: 'lastModified', label: 'Last Modified', alignRight: false},
-  { id: 'edit', label: 'Edit', alignRight: false },
+  { id: 'fundName', label: 'Fund Name', alignRight: false },
 ]
 
 const modalStyle = {
@@ -80,8 +72,7 @@ const modalStyle = {
 
 // ----------------------------------------------------------------------
 
-export default function Instrument() {
-  const theme = useTheme();
+export default function Funds() {
   const { themeStretch } = useSettings();
   const navigate = useNavigate();
   const [userList, setUserList] = useState(_userList);
@@ -90,7 +81,7 @@ export default function Instrument() {
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [instrumentList, setInstrumentList] = useState([]);
 
   useEffect(() => {
@@ -118,6 +109,21 @@ export default function Instrument() {
       return;
     }
     setSelected([]);
+  };
+
+  const handleClick = (name) => {
+    const selectedIndex = selected.indexOf(name);
+    let newSelected = [];
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, name);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
+    }
+    setSelected(newSelected);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -272,10 +278,10 @@ export default function Instrument() {
         <Container maxWidth={themeStretch ? false : 'lg'}>
           
           <HeaderBreadcrumbs
-            heading="Instruments"
+            heading="Funds"
             links={[
               { name: 'Dashboard', href: PATH_DASHBOARD.root },
-              { name: 'Instruments' },
+              { name: 'Funds' },
             ]}
             action={
               <Button
@@ -309,7 +315,7 @@ export default function Instrument() {
                   />
                   <TableBody>
                     {filteredInstruments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { id, instrumentName, instrumentType, currency, country, industry, sector, createdAt, modifiedAt} = row;
+                      const { id, instrumentName, instrumentType, currency, country, industry, sector } = row;
                       // const isItemSelected = selected.indexOf(instrumentName) !== -1;
   
                       return (
@@ -327,27 +333,7 @@ export default function Instrument() {
                             onClick={() => navigate(`/dashboard/instruments/${id}`)}
                             to={`/dashboard/instruments/${id}`}
                           >{instrumentName}</TableCell>
-                          <TableCell align="left">{instrumentType}</TableCell>
-                          <TableCell align="left">{currency}</TableCell>
-                          <TableCell align="left">{country}</TableCell>
-                          <TableCell align="left">{industry}</TableCell>
-                          <TableCell align="left">{sector}</TableCell>
-                          <TableCell align="left">{createdAt}</TableCell>
-                          <TableCell align="left">{modifiedAt}</TableCell>
-                          <TableCell>
-                            <Button
-                              onClick={() => {
-                                setEditInstrumentId(id);
-                                setEditInstrumentCountry(country);
-                                setEditInstrumentSector(sector);
-                                setEditInstrumentType(instrumentType);
-                                setEditModalOpen(true);
-                              }}
-                            >
-                              <Iconify icon={'eva:edit-outline'} />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
+                          </TableRow>
                         
                       );
                     })}

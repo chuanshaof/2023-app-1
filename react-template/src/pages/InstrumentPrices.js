@@ -2,11 +2,15 @@ import { sentenceCase } from 'change-case';
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import merge from 'lodash/merge';
+import ReactApexChart from 'react-apexcharts';
+// @mui
 // @mui
 import { useTheme } from '@mui/material/styles';
 import {
   Box,
   Card,
+  CardHeader,
   Table,
   Avatar,
   Button,
@@ -36,6 +40,7 @@ import { _userList } from '../_mock';
 // components
 import Page from '../components/Page';
 import Label from '../components/Label';
+import { BaseOptionChart } from '../components/chart';
 import Iconify from '../components/Iconify';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
@@ -45,52 +50,159 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 
 // ----------------------------------------------------------------------
 
-
-const TABLE_HEAD2 = [
-  { id: 'instrumentName', label: 'Instrument Name', alignRight: false },
-  { id: 'instrumentType', label: 'Instrument Type', alignRight: false },
-  { id: 'currency', label: 'Currency', alignRight: false },
-  { id: 'country', label: 'Country', alignRight: false },
-  { id: 'industry', label: 'Industry', alignRight: false },
-  { id: 'sector', label: 'Sector', alignRight: false },
+let TABLE_HEAD2 = [
+  { id: 'reportedDate', label: 'Reported Date', alignRight: false },
+  { id: 'unitPrice', label: 'Unit Price', alignRight: false },
+  { id: ''}
 ]
 
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
+const dateLabels = [
+  '10/01/2022',
+  '11/01/2022',
+  '12/01/2022',
+  '01/01/2023',
+  '02/01/2023',
+  '03/01/2023',
+  '04/01/2023',
+  '05/01/2023',
+  '06/01/2023',
+  '07/01/2023',
+  '08/01/2023',
+  '09/01/2023',
+]
+
 
 // ----------------------------------------------------------------------
-
+function InstrumentPriceChart(chartData, instrument) {
+  const chartOptions = merge(BaseOptionChart(), {
+    stroke: { width: [0, 2, 3] },
+    plotOptions: { bar: { columnWidth: '14%' } },
+    fill: { type: ['solid', 'gradient', 'solid'] },
+    labels: [
+      '10/01/2022',
+      '11/01/2022',
+      '12/01/2022',
+      '01/01/2023',
+      '02/01/2023',
+      '03/01/2023',
+      '04/01/2023',
+      '05/01/2023',
+      '06/01/2023',
+      '07/01/2023',
+      '08/01/2023',
+      '09/01/2023',
+    ],
+    xaxis: { type: 'datetime' },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: (y) => {
+          if (typeof y !== 'undefined') {
+            return `${y.toFixed(3)} ${instrument?.currency ?? ''}`;
+          }
+          return y;
+        },
+      },
+    },
+  });
+  return (
+    <Card>
+      <CardHeader title="Price (YTD)"/>
+      <Box sx={{ p: 3, pb: 1 }} dir="ltr">
+        <ReactApexChart type="line" series={chartData?.chartData ?? []} options={chartOptions} height={364} />
+      </Box>
+    </Card>
+  );
+}
 export default function InstrumentPrices() {
   const { themeStretch } = useSettings();
   const navigate = useNavigate();
   const [userList, setUserList] = useState(_userList);
   const [page, setPage] = useState(0);
-  const [order, setOrder] = useState('asc');
+  const [order, setOrder] = useState('desc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('reportedDate');
   const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [instrumentList, setInstrumentList] = useState([]);
+  const [priceList, setPriceList] = useState([]);
+  const [instrument, setInstrument] = useState(null);
   const { id } = useParams();
+  const [chartData, setChartData] = useState([]);
   useEffect(() => {
-    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/price-values/${id}}`).then(res => {
-      console.log("ASDASD", res.data);
+    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/price-values/${id}`).then(res => {
+      if (res.data) {
+        setPriceList(res.data);
+      }
+    });
 
+    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/instruments/${id}`).then(res => {
+      if (res.data) {
+        setInstrument(res.data);
+        TABLE_HEAD2 = [
+          { id: 'reportedDate', value: 'reportedDate', label: 'Reported Date', alignRight: false },
+          { id: 'unitPrice', value: 'unitPrice', label: `Unit Price (${res.data?.currency})`, alignRight: false },
+        ]
+      }
     });
   }, []);
+  useEffect(() => {
+    if (instrument && priceList) {
+      const toAdd = {}
+      toAdd.name = instrument.instrumentName;
+      toAdd.type = 'area';
+      const dicto = {
+        '10/01/2022': true,
+        '11/01/2022': true,
+        '12/01/2022': true,
+        '01/01/2023': true,
+        '02/01/2023': true,
+        '03/01/2023': true,
+        '04/01/2023': true,
+        '05/01/2023': true,
+        '06/01/2023': true,
+        '07/01/2023': true,
+        '08/01/2023': true,
+        '09/01/2023': true,
+      }
+      const sortedPriceList = priceList.sort((a, b) => new Date(b.reportedDate)- new Date(a.reportedDate));
+      const added = {}
+      const e = sortedPriceList.filter((price) => {
+        const d = new Date(price.reportedDate);
+        const monthString = d.getMonth() + 1< 10 ? `0${d.getMonth() + 1}` : `${d.getMonth() + 1}`;
+        if (dicto[`${monthString}/01/${d.getFullYear()}`]) {
+          if (!added[`${monthString}/01/${d.getFullYear()}`]) {
+            added[`${monthString}/01/${d.getFullYear()}`] = true;
+            dicto[`${monthString}/01/${d.getFullYear()}`] = price.unitPrice;
+            return true
+          }
+        }
+        return false
+      })
+      console.log(e, dicto)
+      const chartD = []
+      dateLabels.forEach((e) => {
+        console.log(e, dicto)
+        if (dicto[e] !== true) {
+          chartD.push(dicto[e])
+        } else {
+          chartD.push(0)
+        }
+      })
+      setChartData([{
+        name: instrument.instrumentName,
+        type: "bar",
+        data: chartD
+      }])
+    }
+  }, [instrument, priceList])
   const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
+    const p = property.target.innerText.split(" ")[0] === "Reported" ? 'reportedDate' : 'unitPrice';
+    const isAsc = orderBy === p && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
+    setOrderBy(p);
+
   };
 
   const handleSelectAllClick = (checked) => {
@@ -122,114 +234,27 @@ export default function InstrumentPrices() {
     setPage(0);
   };
 
-  const handleFilterByName = (filterName) => {
-    setFilterName(filterName);
-    setPage(0);
-  };
-
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   // const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
   const filteredInstruments = applySortFilter(instrumentList, getComparator(order, orderBy), filterName);
-  const isNotFound = !filteredInstruments.length && Boolean(filterName);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [file, setFile] = useState(null);
-  const handleFileChange = async (e) => {
-    if (e.target.files) {
-      try {
-        const fileData = e.target.files[0];
-        // 1. create url from the file
-        const fileUrl = URL.createObjectURL(fileData);
-        // 2. use fetch API to read the file
-        const response = await fetch(fileUrl);
-
-        // 3. get the text from the response
-        const text = await response.text();
-
-        const lines = text.split("\n");
-
-        const _data = lines.map((line) => line.split(","));
-        // setFile(_data);
-        setFile(fileData)
-        // console.log(file.data)
-        // console.log()
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  };
+  const filteredPrices = applySortFilter(priceList, getComparator(order, orderBy));
+  const isNotFound = !priceList.length;
   return (
     <>
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        
-        <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{paddingBottom: 2, textAlign: "center"}}>
-            Upload CSV
-          </Typography>
-          <form id="upload-csv-form"
-            onSubmit={async () => {
-              // TODO: upload file to backend
-              console.log("VVVV", file)
-            }}
-          >
-            <FormControl sx={{width: "100%"}}>
-              <Button
-                variant="contained"
-                component="label"
-                paddingBottom={2}
-                textAlign="center"
-              >
-                <input
-                  id='upload-csv-input'
-                  type="file"
-                  accept='.csv'
-                  required
-                  onChange={handleFileChange}
-                  style={{textAlign: "center"}}
-                />
-              </Button>
-              <Button 
-                type="submit"
-                onClick={() => {
-              }}>
-                submit
-              </Button>
-            </FormControl>
-          </form>
-        </Box>
-      </Modal>
       <Page title="User: List">
         <Container maxWidth={themeStretch ? false : 'lg'}>
-          
           <HeaderBreadcrumbs
             heading="Instruments"
             links={[
               { name: 'Dashboard', href: PATH_DASHBOARD.root },
-              { name: 'Instruments' },
+              { name: 'Instruments', href: PATH_DASHBOARD.general.instruments },
+              { name: instrument ? `${instrument?.instrumentName} Prices` : "Instrument Prices", },
             ]}
-            action={
-              <Button
-                variant="contained"
-                onClick={() => setModalOpen(!modalOpen)}
-                startIcon={<Iconify icon={'eva:cloud-upload-outline'} />}
-              >
-                Add CSV
-              </Button>
-            }
           />
+          <InstrumentPriceChart chartData={chartData} instrument={instrument} />
 
           <Card>
-            <UserListToolbar
-              numSelected={selected.length}
-              filterName={filterName}
-              onFilterName={handleFilterByName}
-            />
-
             <Scrollbar>
               <TableContainer sx={{ minWidth: 800 }}>
                 <Table>
@@ -237,38 +262,23 @@ export default function InstrumentPrices() {
                     order={order}
                     orderBy={orderBy}
                     headLabel={TABLE_HEAD2}
-                    rowCount={instrumentList.length}
-                    // numSelected={selected.length}
+                    rowCount={priceList?.length}
                     onRequestSort={handleRequestSort}
-                    onSelectAllClick={handleSelectAllClick}
                   />
                   <TableBody>
-                    {filteredInstruments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { id, instrumentName, instrumentType, currency, country, industry, sector } = row;
-                      // const isItemSelected = selected.indexOf(instrumentName) !== -1;
-  
+                    {filteredPrices.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                      const { instrumentId, reportedDate, unitPrice  } = row;
+                      const id = String(instrumentId);
                       return (
-                        
                         <TableRow
                           hover
                           key={id}
                           component={Link}
                           onClick={() => navigate(`/dashboard/instruments/${id}`)}
                           to={`/dashboard/instruments/${id}`}
-                          // tabIndex={-1}
-                          // role="checkbox"
-                          // selected={isItemSelected}
-                          // aria-checked={isItemSelected}
                         >
-                          {/* <TableCell padding="checkbox">
-                            <Checkbox checked={isItemSelected} onClick={() => handleClick(instrumentName)} />
-                          </TableCell> */}
-                          <TableCell align="left">{instrumentName}</TableCell>
-                          <TableCell align="left">{instrumentType}</TableCell>
-                          <TableCell align="left">{currency}</TableCell>
-                          <TableCell align="left">{country}</TableCell>
-                          <TableCell align="left">{industry}</TableCell>
-                          <TableCell align="left">{sector}</TableCell>
+                          <TableCell align="left">{reportedDate}</TableCell>
+                          <TableCell align="left">{unitPrice}</TableCell>
                         </TableRow>
                         
                       );
@@ -290,7 +300,7 @@ export default function InstrumentPrices() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={filteredInstruments.length}
+              count={priceList.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={(e, page) => setPage(page)}
