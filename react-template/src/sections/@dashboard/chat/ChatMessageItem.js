@@ -31,20 +31,18 @@ const InfoStyle = styled(Typography)(({ theme }) => ({
 
 ChatMessageItem.propTypes = {
   message: PropTypes.object.isRequired,
-  conversation: PropTypes.object.isRequired,
   onOpenLightbox: PropTypes.func,
 };
 
-export default function ChatMessageItem({ message, conversation, onOpenLightbox }) {
-  const sender = conversation.participants.find((participant) => participant.id === message.senderId);
+export default function ChatMessageItem({ message, onOpenLightbox }) {
   const senderDetails =
     message.senderId === '8864c717-587d-472a-929a-8e5f298024da-0'
       ? { type: 'me' }
-      : { avatar: sender?.avatar, name: sender?.name };
+      : { name: 'GenAI' };
 
   const isMe = senderDetails.type === 'me';
   const isImage = message.contentType === 'image';
-  const firstName = senderDetails.name && senderDetails.name.split(' ')[0];
+  // const firstName = senderDetails.name && senderDetails.name.split(' ')[0];
 
   return (
     <RootStyle>
@@ -56,9 +54,9 @@ export default function ChatMessageItem({ message, conversation, onOpenLightbox 
           }),
         }}
       >
-        {senderDetails.type !== 'me' && (
+        {/* {senderDetails.type !== 'me' && (
           <Avatar alt={senderDetails.name} src={senderDetails.avatar} sx={{ width: 32, height: 32, mr: 2 }} />
-        )}
+        )} */}
 
         <div>
           <InfoStyle
@@ -67,7 +65,7 @@ export default function ChatMessageItem({ message, conversation, onOpenLightbox 
               ...(isMe && { justifyContent: 'flex-end' }),
             }}
           >
-            {!isMe && `${firstName},`}&nbsp;
+            {!isMe && `GenAI`}&nbsp;
             {formatDistanceToNowStrict(new Date(message.createdAt), {
               addSuffix: true,
             })}

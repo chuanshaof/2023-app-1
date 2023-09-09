@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import { AnimatePresence, m } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+
+import { useState, useEffect, useRef } from 'react';
 // @mui
 import { alpha, styled } from '@mui/material/styles';
 import { Backdrop, Divider, Typography, Stack, FormControlLabel, Radio } from '@mui/material';
@@ -16,12 +18,24 @@ import Scrollbar from '../Scrollbar';
 import { IconButtonAnimate, varFade } from '../animate';
 //
 import ToggleButton from './ToggleButton';
-import SettingMode from './SettingMode';
-import SettingLayout from './SettingLayout';
-import SettingStretch from './SettingStretch';
-import SettingDirection from './SettingDirection';
-import SettingFullscreen from './SettingFullscreen';
-import SettingColorPresets from './SettingColorPresets';
+
+// import ChatWindow from '../../sections/@dashboard/chat/ChatWindow'
+
+import { useDispatch, useSelector } from '../../redux/store';
+import {
+  addRecipients,
+  onSendMessage,
+  getConversation,
+  getParticipants,
+  markConversationAsRead,
+  resetActiveConversation,
+} from '../../redux/slices/chat';
+// routes
+import { PATH_DASHBOARD } from '../../routes/paths';
+//
+import ChatMessageList from '../../sections/@dashboard/chat/ChatMessageList';
+import ChatMessageInput from '../../sections/@dashboard/chat/ChatMessageInput';
+
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +48,7 @@ const RootStyle = styled(m.div)(({ theme }) => ({
   position: 'fixed',
   overflow: 'hidden',
   width: NAVBAR.BASE_WIDTH,
+  height: NAVBAR.BASE_HEIGHT,
   flexDirection: 'column',
   margin: theme.spacing(2),
   paddingBottom: theme.spacing(3),
@@ -45,11 +60,75 @@ const RootStyle = styled(m.div)(({ theme }) => ({
   )}`,
 }));
 
+const conversationSelector = (state) => {
+  const { conversations, activeConversationId } = state.chat;
+  const conversation = activeConversationId ? conversations.byId[activeConversationId] : null;
+ 
+  if (conversation) {
+    return conversation;
+  }
+  const initState = {
+    id: '',
+    messages: [],
+    participants: [],
+    unreadCount: 0,
+    type: '',
+  };
+  return initState;
+};
+
 // ----------------------------------------------------------------------
 
 export default function Settings() {
   const { themeMode, themeDirection, themeColorPresets, themeStretch, themeLayout, onResetSetting } = useSettings();
   const [open, setOpen] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const conversationKey = "reece.chung";
+  const { activeConversationId } = useSelector((state) => state.chat);
+  const conversation = useSelector((state) => conversationSelector(state));
+  const scrollRef = useRef(null);
+
+  const mode = conversationKey ? 'DETAIL' : 'COMPOSE';
+
+  useEffect(() => {
+    const getDetails = async () => {
+      // dispatch(getParticipants(conversationKey));
+      try {
+        await dispatch(getConversation(conversationKey));
+      } catch (error) {
+        console.error(error);
+        navigate(PATH_DASHBOARD.chat.new);
+      }
+    };
+    if (conversationKey) {
+      getDetails();
+    } else if (activeConversationId) {
+      dispatch(resetActiveConversation());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationKey]);
+
+  // useEffect(() => {
+  //   if (activeConversationId) {
+  //     dispatch(markConversationAsRead(activeConversationId));
+  //   }
+  // }, [dispatch, activeConversationId]);
+
+  const handleAddRecipients = (recipients) => {
+    dispatch(addRecipients(recipients));
+  };
+
+  const handleSendMessage = async (value) => {
+    try {
+      dispatch(onSendMessage(value));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
 
   const notDefault =
     themeMode !== defaultSettings.themeMode ||
@@ -102,7 +181,7 @@ export default function Settings() {
           <>
             <RootStyle {...varSidebar}>
               <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 2, pr: 1, pl: 2.5 }}>
-                <Typography variant="subtitle1">Settings</Typography>
+                <Typography variant="subtitle1">Ask Jamie</Typography>
                 <div>
                   <IconButtonAnimate onClick={onResetSetting}>
                     <Iconify icon={'ic:round-refresh'} width={20} height={20} />
@@ -114,9 +193,9 @@ export default function Settings() {
               </Stack>
 
               <Divider sx={{ borderStyle: 'dashed' }} />
-
-              <Scrollbar sx={{ flexGrow: 1 }}>
-                <Stack spacing={3} sx={{ p: 3 }}>
+              {/* <Scrollbar sx={{ flexGrow: 1 }}> */}
+                
+                {/* <Stack spacing={3} sx={{ p: 3 }}>
                   <Stack spacing={1.5}>
                     <Typography variant="subtitle2">Mode</Typography>
                     <SettingMode />
@@ -143,8 +222,18 @@ export default function Settings() {
                   </Stack>
 
                   <SettingFullscreen />
-                </Stack>
-              </Scrollbar>
+                </Stack> */}
+              {/* </Scrollbar> */}
+            <Scrollbar scrollableNodeProps={{ ref: scrollRef }} sx={{ p: 3, height: 1 }}>
+            <ChatMessageList conversation={conversation} />
+            </Scrollbar>
+            <Divider />
+
+            <ChatMessageInput
+              conversationId={activeConversationId}
+              onSend={handleSendMessage}
+              disabled={pathname === PATH_DASHBOARD.chat.new}
+            />
             </RootStyle>
           </>
         )}
