@@ -1,5 +1,8 @@
 # Hello
 
+To install: npm i --legacy-peer-deps
+To start: npm start
+
 ## Pre-Requisites
 1. Have docker installed
 1. Have docker-compose installed

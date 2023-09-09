@@ -37,7 +37,7 @@ export const PATH_DASHBOARD = {
   general: {
     app: path(ROOTS_DASHBOARD, '/app'),
     entities: path(ROOTS_DASHBOARD, '/entities'),
-    positions: path(ROOTS_DASHBOARD, '/positions'),
+    instruments: path(ROOTS_DASHBOARD, '/instruments'),
     chat: {
       root: path(ROOTS_DASHBOARD, '/chat'),
       new: path(ROOTS_DASHBOARD, '/chat/new'),

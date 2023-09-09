@@ -1,12 +1,10 @@
 from fastapi import APIRouter
 from langchain.chat_models import ChatAnthropic
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
-from dotenv import load_dotenv
+from ..config import settings
 
-print(load_dotenv())
 router = APIRouter()
-chat = ChatAnthropic()
-
+chat = ChatAnthropic(anthropic_api_key=settings.ANTHROPIC_API_KEY)
 
 @router.get("/genai")
 def genai():

@@ -3,7 +3,6 @@ config.py
 """
 
 from pydantic_settings import BaseSettings
-import base64
 import os
 from dotenv import load_dotenv
 
@@ -14,21 +13,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "YOUR_SECRET_KEY"
     ORIGINS: str = "*"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 3000000
-    PAYPAL_CLIENT_ID: str = os.environ.get('PAYPAL_CLIENT_ID')
-    PAYPAL_CLIENT_SECRET: str = os.environ.get('PAYPAL_CLIENT_SECRET')
-    PAYPAL_API_KEY: str = base64.b64encode((PAYPAL_CLIENT_ID + ':' + PAYPAL_CLIENT_SECRET).encode('utf-8')).decode('utf-8')
-    REDIS_URL: str = "redis://localhost:6379/0"
-    CELERY_BROKER_URL: str = "pyamqp://guest@localhost//"
-    SENTRY_DSN: str = "YOUR_SENTRY_DSN"
-    MKDOCS_CONFIG_FILE: str = "mkdocs.yml"
-    DOCKERFILE: str = "Dockerfile"
-    KUBERNETES_CONFIG_FILE: str = "k8s_config.yml"
-    FLOWER_PORT: int = 5555
-    FLOWER_URL_PREFIX: str = "flower"
-    FLOWER_BASIC_AUTH: str = "user:password"
-
-    # class Config:
-    #     env_file = ".env"
+    ANTHROPIC_API_KEY: str = os.environ.get("ANTHROPIC_API_KEY")
+    AWS_RDS_API_KEY: str = os.environ.get("AWS_RDS_API_KEY")
 
 settings = Settings()

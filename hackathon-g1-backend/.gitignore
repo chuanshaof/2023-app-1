@@ -18,7 +18,9 @@ env
 .env
 docs_build
 site_build
+data/
 venv/
+dev_venv/
 docs.zip
 archive.zip
 
@@ -29,3 +31,4 @@ archive.zip
 
 # macOS
 .DS_Store
+*.pem
