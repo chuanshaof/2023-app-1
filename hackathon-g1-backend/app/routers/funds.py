@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select, and_, desc
 from sqlalchemy.orm import Session
-from ..models import Positions, Pricing
+from ..models import Positions, Pricing, Funds
 from ..database import get_db
 
 router = APIRouter()
@@ -63,9 +63,18 @@ def get_instrument_fund_position(fund_id: int, instrument_id: int, db: Session =
 
 @router.get("")
 def get_positions(db: Session = Depends(get_db)):
-    funds = db.query(Positions).all()
+    funds = db.query(Positions, Funds).filter(Funds.fundId == Positions.fundId).all()
 
     if funds:
-        return funds
+        # Create a list to store merged data
+        merged_data = []
+
+        for row in funds:
+            position, fund = row
+            position.fundName = fund.fundName
+            merged_data.append(position)
+
+        # Return the merged data as JSON
+        return merged_data
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No funds not found")
