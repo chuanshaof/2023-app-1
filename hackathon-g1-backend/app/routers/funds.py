@@ -77,4 +77,4 @@ def get_positions(db: Session = Depends(get_db)):
         # Return the merged data as JSON
         return merged_data
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No funds not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No funds found")
