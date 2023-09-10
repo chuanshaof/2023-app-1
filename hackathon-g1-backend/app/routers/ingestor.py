@@ -18,7 +18,7 @@ def ingestor(file: UploadFile, db: Session = Depends(get_db)):
         '''
         Obtaining `fundName` and `reportedDate` from the file name
         '''
-        fundName = file.filename.split(".")[0].split("-")[-1].split(" ")[-1]
+        fundName = file.filename.split(".")[0].split("-")[-1].split(" ")[-1].split("_")[-1]
         reportedDate = file.filename.split(".")[1].split(" ")[0].replace("_", "-")
         reportedDate = parser.parse(reportedDate).date()
 

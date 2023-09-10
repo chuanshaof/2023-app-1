@@ -135,6 +135,9 @@ def test_genai(query: Query):
     messages = [
         HumanMessage(
             content=query.query
+        ),
+        HumanMessage(
+            content="What is the total market value of fund 1?"
         )
     ]
     res = chat(messages)
