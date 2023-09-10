@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 from .routers.funds import router as funds
 from .routers.instruments import router as instruments
 from .routers.price_values import router as price_values

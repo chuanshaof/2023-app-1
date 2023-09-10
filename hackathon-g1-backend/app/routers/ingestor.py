@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, Depends
 import pandas as pd
 import numpy as np
+import logging
 from dateutil import parser
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -11,6 +12,7 @@ router = APIRouter()
 @router.post("/ingestor")
 def ingestor(file: UploadFile, db: Session = Depends(get_db)): 
     if not file:
+        logging.error("No file provided")
         return {"error": "No file provided"}
     else:
         '''
@@ -33,6 +35,7 @@ def ingestor(file: UploadFile, db: Session = Depends(get_db)):
             )
             db.add(fund)    
             db.commit()
+            logging.info(f"Created new fund: {fundName}")
 
         fundId = fund.fundId
 
@@ -99,6 +102,7 @@ def ingestor(file: UploadFile, db: Session = Depends(get_db)):
 
                 db.add(instrument)    
                 db.commit()
+                logging.info(f"Created new instrument: {instrument.instrumentName}")
                 instrumentIds.append(instrument.instrumentId)
 
         df["instrumentId"] = instrumentIds
@@ -154,3 +158,5 @@ def ingestor(file: UploadFile, db: Session = Depends(get_db)):
                 db.add(position)
 
         db.commit()
+        logging.info(f"Successfully ingested {file.filename}")
+        return {"message": "Success"}

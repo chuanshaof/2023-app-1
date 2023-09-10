@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+import logging
 from ..models import Pricing
 from ..database import get_db
 
@@ -20,4 +21,5 @@ def get_price_values(instrument_id: int, db: Session = Depends(get_db)):
     if priceValues:
         return priceValues
     else:
+        logging.error(f"Instrument {instrument_id} not found")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instrument not found")
