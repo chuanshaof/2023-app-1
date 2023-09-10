@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { AnimatePresence, m } from 'framer-motion';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 import { useState, useEffect, useRef } from 'react';
 // @mui
@@ -25,9 +26,8 @@ import { useDispatch, useSelector } from '../../redux/store';
 import {
   addRecipients,
   onSendMessage,
+  onReceiveMessage,
   getConversation,
-  getParticipants,
-  markConversationAsRead,
   resetActiveConversation,
 } from '../../redux/slices/chat';
 // routes
@@ -90,7 +90,7 @@ export default function Settings() {
   const { activeConversationId } = useSelector((state) => state.chat);
   const conversation = useSelector((state) => conversationSelector(state));
   const scrollRef = useRef(null);
-
+  console.log("ASDASDA", activeConversationId)
   const mode = conversationKey ? 'DETAIL' : 'COMPOSE';
 
   useEffect(() => {
@@ -123,7 +123,20 @@ export default function Settings() {
 
   const handleSendMessage = async (value) => {
     try {
+      // axios.post()
       dispatch(onSendMessage(value));
+      const message = value.message
+      const data = { query: message }
+
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/genai/test`, data)
+      .then((response) => {
+        console.log("DSFSDFS", response.data)
+        const newValue = {...value, message: response.data}
+        dispatch(onReceiveMessage(newValue));
+      })
+
+      // const newValue = {...value}
+      // dispatch(onReceiveMessage(newValue));
     } catch (error) {
       console.error(error);
     }
@@ -181,7 +194,7 @@ export default function Settings() {
           <>
             <RootStyle {...varSidebar}>
               <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 2, pr: 1, pl: 2.5 }}>
-                <Typography variant="subtitle1">Ask Jamie</Typography>
+                <Typography variant="subtitle1">Ask Mika</Typography>
                 <div>
                   <IconButtonAnimate onClick={onResetSetting}>
                     <Iconify icon={'ic:round-refresh'} width={20} height={20} />

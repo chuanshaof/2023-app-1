@@ -50,7 +50,7 @@
     "@mui/material": "^5.2.4",
     "@mui/x-data-grid": "^5.2.1",
     "@mui/x-date-pickers": "^6.13.0",
-    "@react-pdf/renderer": "^2.0.21",
+    "@react-pdf/renderer": "3.0.0",
     "@reduxjs/toolkit": "^1.7.1",
     "@turf/bbox": "^6.5.0",
     "amazon-cognito-identity-js": "^5.2.3",
@@ -130,6 +130,10 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "prettier": "^2.5.1",
     "typescript": "^4.4.4"
+  },
+  "overrides": {
+    "@react-pdf/font": "2.2.1",
+    "@react-pdf/pdfkit": "2.1.0"
   },
   "proxy" : "http://54.169.209.187"
 }
