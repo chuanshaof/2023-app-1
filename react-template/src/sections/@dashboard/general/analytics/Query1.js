@@ -271,9 +271,9 @@ export default function Query1() {
     return (
         <Box>
             <Box sx={{ minWidth: 120 }}>
-                <Typography variant="h4">  Analytics </Typography>
+                <Typography paddingBottom={2} variant="h4">  Analytics </Typography>
                 <Stack sx={{ p: 4 }}>
-                <Typography variant="h7"> Breakdown by Filter Query</Typography>
+                <Typography paddingBottom={2} variant="h7"> Breakdown by Filter Query</Typography>
                 <Stack direction="row" justifyContent={"space-between"} spacing={2}>
                     <FormControl fullWidth>
                         <InputLabel>Fund ID</InputLabel>

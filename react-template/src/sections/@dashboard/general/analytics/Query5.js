@@ -58,7 +58,7 @@ export default function Query5() {
         <Box>
             <Box sx={{ minWidth: 120 }}>
                 <Stack sx={{ p: 4 }}>
-                <Typography variant="h7"> Top N Performing Funds Query</Typography>
+                <Typography paddingBottom={2} variant="h7"> Top N Performing Funds Query</Typography>
                 <Stack direction="row" justifyContent={"space-between"} spacing={2} >
 
 

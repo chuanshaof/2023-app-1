@@ -55,6 +55,8 @@ const TABLE_HEAD = [
 ];
 
 const TABLE_HEAD2 = [
+  { id: 'fundId', label: 'Fund ID', alignRight: false },
+
   { id: 'fundName', label: 'Fund Name', alignRight: false },
 ]
 
@@ -94,7 +96,6 @@ export default function Funds() {
       })
       const dicto = {}
       const result = data.filter((fund) => {
-        console.log(fund)
         if (!dicto[fund.id]) {
           dicto[fund.id] = fund
           return true
@@ -226,7 +227,7 @@ export default function Funds() {
                     orderBy={orderBy}
                     headLabel={TABLE_HEAD2}
                     rowCount={fundList.length}
-                    align="center"
+                    // align="center"
                     // numSelected={selected.length}
                     onRequestSort={handleRequestSort}
                     onSelectAllClick={handleSelectAllClick}
@@ -246,7 +247,13 @@ export default function Funds() {
                             <Checkbox checked={isItemSelected} onClick={() => handleClick(instrumentName)} />
                           </TableCell> */}
                           <TableCell
-                            align="center"
+                            // align="center"
+                            component={Link}
+                            onClick={() => navigate(`/dashboard/funds/${id}`)}
+                            to={`/dashboard/funds/${id}`}
+                          >{id}</TableCell>
+                          <TableCell
+                            // align="center"
                             component={Link}
                             onClick={() => navigate(`/dashboard/funds/${id}`)}
                             to={`/dashboard/funds/${id}`}

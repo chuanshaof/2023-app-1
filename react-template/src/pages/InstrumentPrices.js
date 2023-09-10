@@ -110,7 +110,7 @@ function InstrumentPriceChart(chartData, instrument) {
     <Card>
       <CardHeader title="Price (YTD)"/>
       <Box sx={{ p: 3, pb: 1 }} dir="ltr">
-        <ReactApexChart type="line" series={chartData?.chartData ?? []} options={chartOptions} height={364} />
+        {chartData.chartData && <ReactApexChart type="line" series={chartData.chartData} options={chartOptions} height={364} />}
       </Box>
     </Card>
   );
@@ -180,7 +180,7 @@ export default function InstrumentPrices() {
         }
         return false
       })
-      console.log(e, dicto)
+      console.log("ASDOKASDOKAS1", e, dicto)
       const chartD = []
       dateLabels.forEach((e) => {
         console.log(e, dicto)
@@ -192,7 +192,7 @@ export default function InstrumentPrices() {
       })
       setChartData([{
         name: instrument.instrumentName,
-        type: "bar",
+        type: "area",
         data: chartD
       }])
     }
@@ -240,6 +240,7 @@ export default function InstrumentPrices() {
   const filteredInstruments = applySortFilter(instrumentList, getComparator(order, orderBy), filterName);
   const filteredPrices = applySortFilter(priceList, getComparator(order, orderBy));
   const isNotFound = !priceList.length;
+  console.log("ASDOKASDOKAS", chartData)
   return (
     <>
       <Page title="Instrument">
@@ -252,7 +253,8 @@ export default function InstrumentPrices() {
               { name: instrument ? `${instrument?.instrumentName} Prices` : "Instrument Prices", },
             ]}
           />
-          <InstrumentPriceChart chartData={chartData} instrument={instrument} />
+          {chartData.length > 0 && <InstrumentPriceChart chartData={chartData} instrument={instrument} />}
+          
 
           <Card>
             <Scrollbar>

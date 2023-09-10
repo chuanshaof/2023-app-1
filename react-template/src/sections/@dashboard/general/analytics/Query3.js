@@ -72,7 +72,7 @@ export default function Query3() {
         <Box>
             <Box sx={{ minWidth: 120 }}>
                 <Stack sx={{ p: 4 }}>
-                <Typography variant="h7"> Monthly Investment Return [ Fund ] Query</Typography>
+                <Typography paddingBottom={2} variant="h7"> Monthly Investment Return [ Fund ] Query</Typography>
                 <Stack direction="row" justifyContent={"space-between"} spacing={2} >
                     <FormControl fullWidth>
                         <InputLabel>Fund ID</InputLabel>
