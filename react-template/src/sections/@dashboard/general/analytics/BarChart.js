@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import merge from 'lodash/merge';
 import ReactApexChart from 'react-apexcharts';
 // @mui
@@ -19,9 +21,11 @@ export default function BarChart(data) {
     tooltip: {
       marker: { show: false },
       y: {
-        formatter: (seriesName) => fNumber(seriesName),
-        title: {
-          formatter: () => '',
+        formatter: (y) => {
+          if (typeof y !== 'undefined') {
+            return `${y.toFixed(3)}`;
+          }
+          return y;
         },
       },
     },
@@ -31,6 +35,15 @@ export default function BarChart(data) {
     xaxis: {
       categories: data.data.fund_ids
     },
+    yaxis: [
+      {
+        labels: {
+          formatter: function(val) {
+            return val.toFixed();;
+          }
+        }
+      }
+    ]
   });
 
   return (
