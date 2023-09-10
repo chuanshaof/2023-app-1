@@ -14,17 +14,9 @@ import axios from 'axios'
 // hooks
 import useSettings from '../../../../hooks/useSettings';
 // sections
-import {
-    AnalyticsTasks,
-    AnalyticsNewsUpdate,
-    AnalyticsOrderTimeline,
-    AnalyticsCurrentVisits,
-    AnalyticsWebsiteVisits,
-    AnalyticsTrafficBySite,
-    AnalyticsWidgetSummary,
-    AnalyticsCurrentSubject,
-    AnalyticsConversionRates,
-} from '.';
+
+import BarChart from './BarChart';
+
 
 
 // ---------------------------------------------------------------------
@@ -42,10 +34,14 @@ export default function Query5() {
     
     const handleQuery = async () => {
         const query = {
-            "nValues": nvalues
+            "n": nvalues,
+            "months" : 12,
+            "date" : "2023-09-09"
         }
-        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/breakdown`, query).then(
+        sessionStorage.setItem("query5", query);
+        await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/top_n`, query).then(
             res => {
+                setData(res.data)
                 console.log(res.data)}
 
         )
@@ -78,7 +74,7 @@ export default function Query5() {
                 </Stack>
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
-                {data && <AnalyticsConversionRates />}
+                {data && <BarChart data={data} title={"Top N Performing Funds"}/>}
             </Container>
         </Box>
     );

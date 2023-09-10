@@ -3,7 +3,7 @@ import ReactApexChart from 'react-apexcharts';
 import {useNavigate} from 'react-router-dom';
 import { useState, useEffect } from 'react';
 // @mui
-import { TableContainer, TablePagination, Box,TableCell, Table, Link, TableRow, TableBody, Grid,Card, CardHeader, Container, Typography, Stack, TextField, Button, InputLabel, FormControl, MenuItem } from '@mui/material';
+import { TableContainer, TablePagination, Box,TableCell, Table, Link, TableRow, TableBody,Card, CardHeader, Container, Typography, Stack, TextField, Button, InputLabel, FormControl, MenuItem } from '@mui/material';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -29,18 +29,6 @@ import Scrollbar from '../../../../components/Scrollbar';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../../user/list';
 
 // sections
-import {
-    AnalyticsTasks,
-    AnalyticsNewsUpdate,
-    AnalyticsOrderTimeline,
-    AnalyticsCurrentVisits,
-    AnalyticsWebsiteVisits,
-    AnalyticsTrafficBySite,
-    AnalyticsWidgetSummary,
-    AnalyticsCurrentSubject,
-    AnalyticsConversionRates,
-} from '.';
-
 
 // ----------------------------------------------------------------------
 const ITEM_HEIGHT = 48;
@@ -76,10 +64,23 @@ const ChartWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const CHART_DATA = [4344, 5435, 1443, 4443];
-
 const fundIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const SomeChart = (filterType) => {
+
+    const instrumentCollection = [];
+
+    console.log(filterType.filter)
+
+
+    if(filterType.filter === "instruments"){
+        filterType.data.values.map((e, index) => instrumentCollection.push({
+            "instrumentId" : filterType.data.types[index],
+            "marketValue" : e
+        }))
+    }
+
+    console.log(instrumentCollection);
+
     const TABLE_HEAD2 = [
         { id: 'instrumentId', label: 'Instrument ID', alignRight: false },
         { id: 'marketValue', label: 'Market Value', alignRight: false },
@@ -104,7 +105,7 @@ const SomeChart = (filterType) => {
         theme.palette.chart.violet[0],
         theme.palette.chart.yellow[0],
       ],
-      labels: ['America', 'Asia', 'Europe', 'Africa'],
+      labels: filterType.data.types,
       stroke: { colors: [theme.palette.background.paper] },
       legend: { floating: true, horizontalAlign: 'center' },
       dataLabels: { enabled: true, dropShadow: { enabled: false } },
@@ -121,14 +122,15 @@ const SomeChart = (filterType) => {
         pie: { donut: { labels: { show: false } } },
       },
     });
-    const ftype = filterType.filterType;
-    const instrumentList = []
+    
+
     return (<>
-    {ftype === "sector" || ftype === "country" ?
+    {filterType.filter === "sector" || filterType.filter === "country" ?
+
       <Card>
         <CardHeader title="Current Visits" />
         <ChartWrapperStyle dir="ltr">
-          <ReactApexChart type="pie" series={CHART_DATA} options={chartOptions} height={280} />
+          <ReactApexChart type="pie" series={filterType.data.values} options={chartOptions} height={280} />
         </ChartWrapperStyle>
       </Card> : 
             <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -147,20 +149,20 @@ const SomeChart = (filterType) => {
                       order={order}
                       orderBy={orderBy}
                       headLabel={TABLE_HEAD2}
-                      rowCount={instrumentList.length}
+                      rowCount={instrumentCollection.length}
                       // numSelected={selected.length}
                     //   onRequestSort={handleRequestSort}
                     />
                     <TableBody>
-                      {instrumentList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                        const { id, instrumentName, instrumentType, currency, country, industry, sector } = row;
+                      {instrumentCollection.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                        const { instrumentId, marketValue } = row;
                         // const isItemSelected = selected.indexOf(instrumentName) !== -1;
     
                         return (
                           
                           <TableRow
                             hover
-                            key={id}
+                            key={instrumentId}
                           >
                             {/* <TableCell padding="checkbox">
                               <Checkbox checked={isItemSelected} onClick={() => handleClick(instrumentName)} />
@@ -168,10 +170,14 @@ const SomeChart = (filterType) => {
                             <TableCell
                               align="left"
                               component={Link}
-                              onClick={() => navigate(`/dashboard/instruments/${id}`)}
-                              to={`/dashboard/instruments/${id}`}
-                            >{instrumentName}</TableCell>
+                              onClick={() => navigate(`/dashboard/instruments/${instrumentId}`)}
+                              to={`/dashboard/instruments/${instrumentId}`}
+                            >{instrumentId}</TableCell>
+                            <TableCell
+                              align="left"
+                            >{marketValue}</TableCell>
                             </TableRow>
+                            
                           
                         );
                       })}
@@ -192,7 +198,7 @@ const SomeChart = (filterType) => {
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={instrumentList.length}
+                count={instrumentCollection.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={(e, page) => setPage(page)}
@@ -242,9 +248,12 @@ export default function Query1() {
             "type" : type,
             "date": startDate.toISOString().split("T")[0],
         }
+        sessionStorage.setItem("query1", query);
         await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/analytics/breakdown`, query).then(
             res => {
-                console.log(res.data)}
+                console.log(res.data)
+                setData(res.data);
+            }
 
         )
         
@@ -259,6 +268,7 @@ export default function Query1() {
     return (
         <Box>
             <Box sx={{ minWidth: 120 }}>
+                <Typography variant="h4">  Analytics </Typography>
                 <Stack direction="row" justifyContent={"space-between"} spacing={2} sx={{ p: 4 }}>
                     <FormControl fullWidth>
                         <InputLabel>Fund ID</InputLabel>
@@ -279,7 +289,7 @@ export default function Query1() {
                             label="Type of Filter"
                             onChange={handleTypeChange}
                         >
-                            <MenuItem value={"instrument"}>Instrument</MenuItem>
+                            <MenuItem value={"instruments"}>Instrument</MenuItem>
                             <MenuItem value={"country"}>Country</MenuItem>
                             <MenuItem value={"sector"}>Sector</MenuItem>
                         </Select>
@@ -295,7 +305,8 @@ export default function Query1() {
                 </Stack>
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
-                { data && <AnalyticsCurrentVisits /> }
+                {console.log("tag" ,data)}
+                { data && <SomeChart filter={type} data={data}/> }
             </Container>
         </Box>
     );
