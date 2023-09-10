@@ -76,6 +76,8 @@ const slice = createSlice({
       const conversation = action.payload;
       const { conversationId, messageId, message, contentType, attachments, createdAt, senderId } = conversation;
 
+      // axios.get(`${process.env.REACT_APP_BASE_URL}/instruments`)
+
       const newMessage = {
         id: messageId,
         body: message,
@@ -83,6 +85,22 @@ const slice = createSlice({
         attachments,
         createdAt,
         senderId,
+      };
+
+      state.conversations.byId[conversationId].messages.push(newMessage);
+    },
+
+    onReceiveMessage(state, action) {
+      const conversation = action.payload;
+      const { conversationId, messageId, message, contentType, attachments, createdAt, senderId } = conversation;
+      console.log("SDDDD", conversation)
+      const newMessage = {
+        id: messageId,
+        body: message,
+        contentType,
+        attachments,
+        createdAt,
+        senderId: 'e99f09a7-dd88-49d5-b1c8-1daf80c2d7b5',
       };
 
       state.conversations.byId[conversationId].messages.push(newMessage);
@@ -118,7 +136,7 @@ const slice = createSlice({
 export default slice.reducer;
 
 // Actions
-export const { addRecipients, onSendMessage, resetActiveConversation } = slice.actions;
+export const { addRecipients, onReceiveMessage, onSendMessage, resetActiveConversation } = slice.actions;
 
 // ----------------------------------------------------------------------
 

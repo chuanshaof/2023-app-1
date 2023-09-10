@@ -1,7 +1,8 @@
 import { sentenceCase } from 'change-case';
 import React, { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+
 // @mui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -45,17 +46,11 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
-  { id: '' },
-];
-
 const TABLE_HEAD2 = [
-  { id: 'fundName', label: 'Fund Name', alignRight: false },
+  { id: 'fundName', label: 'Instrument Name', alignRight: false },
+  { id: 'sector', label: 'Sector', alignRight: false },
+  { id: 'industry', label: 'Industry', alignRight: false },
+  { id: 'marketValue', label: 'Market Value (USD)' , alignRight: false },
 ]
 
 const modalStyle = {
@@ -81,29 +76,57 @@ export default function Funds() {
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [fundList, setFundList] = useState([]);
+  const [fundName, setFundName] = useState("");
+  const [instrumentList, setInstrumentList] = useState([]);
+  const [compositeList, setCompositeList] = useState([]);
+  const dicto = {}
 
   useEffect(() => {
     axios.get(`${process?.env.REACT_APP_BACKEND_URL}/funds`).then(res => {
-      const data = res.data.map((fund) => {
-        return {
-          fundName: fund.fundName,
-          id: String(fund.fundId),
-        }
-      })
-      const dicto = {}
+      const data = res.data.filter((fund) => String(fund.fundId) === id)
       const result = data.filter((fund) => {
-        console.log(fund)
-        if (!dicto[fund.id]) {
-          dicto[fund.id] = fund
+        if (!dicto[fund.instrumentId]) {
+          dicto[fund.instrumentId] = true
           return true
         }
         return false
       })
       setFundList(result);
     });
+    axios.get(`${process?.env.REACT_APP_BACKEND_URL}/instruments`).then(res => {
+      setInstrumentList(res.data);
+      console.log("ASDADSD", res.data)
+    });
   }, []);
+
+  const TAB_HEAD2 = [
+    { id: 'instrumentName', label: 'Instrument Name', alignRight: false },
+    { id: 'instrumentType', label: 'Instrument Type', alignRight: false },
+    { id: 'currency', label: 'Currency', alignRight: false },
+    { id: 'country', label: 'Country', alignRight: false },
+    { id: 'industry', label: 'Industry', alignRight: false },
+    { id: 'sector', label: 'Sector', alignRight: false },
+  ]
+
+  useEffect(() => {
+    if (instrumentList && fundList) {
+      const dicto1 = {}
+      instrumentList.forEach((instrument) => {
+        dicto1[String(instrument.instrumentId)] = instrument
+      })
+      const res = fundList.map((fund) => {
+        setFundName(fund.fundName)
+        return {
+          ...fund,
+          ...dicto1[String(fund.instrumentId)]
+        }
+      })
+      setCompositeList(res)
+    }
+  }, [instrumentList, fundList])
+
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -155,41 +178,9 @@ export default function Funds() {
   // const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
   const filteredInstruments = applySortFilter(fundList, getComparator(order, orderBy), filterName);
   const isNotFound = !filteredInstruments.length && Boolean(filterName);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editInstrumentId, setEditInstrumentId] = useState(null);
-  const [editInstrumentCountry, setEditInstrumentCountry] = useState(null);
-  const [editInstrumentSector, setEditInstrumentSector] = useState(null);
-  const [editInstrumentType, setEditInstrumentType] = useState(null);
   const [file, setFile] = useState(null);
-  const handleFileChange = async (e) => {
-    if (e.target.files) {
-      try {
-        const fileData = e.target.files[0];
-        // // 1. create url from the file
-        // const fileUrl = URL.createObjectURL(fileData);
-        // // 2. use fetch API to read the file
-        // const response = await fetch(fileUrl);
-        // // 3. get the text from the response
-        // const text = await response.text();
-        // const lines = text.split("\n");
-        // const _data = lines.map((line) => line.split(","));
-        setFile(fileData)
-
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  };
-
-  const submitFile = async() => {
-      const formData = new FormData();
-      formData.append("file", file)
-      await axios.post(`${process?.env.REACT_APP_BACKEND_URL}/ingestor`, formData, {})
-
-      window.location.reload()
-  }
-
+  const { id } = useParams();
+  
   return (
     <>
       <Page title="Funds">
@@ -198,25 +189,32 @@ export default function Funds() {
             heading="Funds"
             links={[
               { name: 'Dashboard', href: PATH_DASHBOARD.root },
-              { name: 'Funds' },
+              { name: 'Funds', href: PATH_DASHBOARD.general.funds},
+              { name: `${fundName}`}
             ]}
-            // action={
-            //   <Button
-            //     variant="contained"
-            //     onClick={() => {}}
-            //     startIcon={<Iconify icon={'eva:refresh-fill'} />}
-            //   >
-            //    Refresh Position
-            //   </Button>
-            // }
+            action={
+              <Button
+                variant="contained"
+                onClick={() => {
+                    axios.post(`${process?.env.REACT_APP_BACKEND_URL}/funds/${id}/refresh`).then(res => {
+                        console.log(res)
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                }}
+                startIcon={<Iconify icon={'eva:refresh-fill'} />}
+              >
+               Refresh Position
+              </Button>
+            }
           />
 
           <Card>
-            {/* <UserListToolbar
+            <UserListToolbar
               numSelected={selected.length}
               filterName={filterName}
               onFilterName={handleFilterByName}
-            /> */}
+            />
 
             <Scrollbar>
               <TableContainer sx={{ minWidth: 800 }}>
@@ -232,15 +230,15 @@ export default function Funds() {
                     onSelectAllClick={handleSelectAllClick}
                   />
                   <TableBody>
-                    {filteredInstruments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                      const { id, fundName } = row;
+                    {compositeList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                      const { rowId, instrumentId, instrumentName, sector, industry, marketValue } = row;
                       // const isItemSelected = selected.indexOf(instrumentName) !== -1;
   
                       return (
                         
                         <TableRow
                           hover
-                          key={id}
+                          key={rowId}
                         >
                           {/* <TableCell padding="checkbox">
                             <Checkbox checked={isItemSelected} onClick={() => handleClick(instrumentName)} />
@@ -248,9 +246,18 @@ export default function Funds() {
                           <TableCell
                             align="center"
                             component={Link}
-                            onClick={() => navigate(`/dashboard/funds/${id}`)}
-                            to={`/dashboard/funds/${id}`}
-                          >{fundName}</TableCell>
+                            onClick={() => navigate(`/dashboard/funds/${id}/instruments/${instrumentId}`)}
+                            to={`/dashboard/funds/${id}/instruments/${instrumentId}`}
+                          >{instrumentName}</TableCell>
+                          <TableCell>
+                            {sector}
+                          </TableCell>
+                          <TableCell>
+                            {industry}
+                          </TableCell>
+                          <TableCell>
+                            {marketValue}
+                          </TableCell>
                           </TableRow>
                         
                       );
@@ -272,7 +279,7 @@ export default function Funds() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={filteredInstruments.length}
+              count={compositeList.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={(e, page) => setPage(page)}
