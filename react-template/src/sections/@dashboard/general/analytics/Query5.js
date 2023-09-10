@@ -57,7 +57,9 @@ export default function Query5() {
     return (
         <Box>
             <Box sx={{ minWidth: 120 }}>
-                <Stack direction="row" justifyContent={"space-between"} spacing={2} sx={{ p: 4 }}>
+                <Stack sx={{ p: 4 }}>
+                <Typography variant="h7"> Top N Performing Funds Query</Typography>
+                <Stack direction="row" justifyContent={"space-between"} spacing={2} >
 
 
 
@@ -71,6 +73,7 @@ export default function Query5() {
 
 
                     <Button onClick={handleQuery}> Visualise </Button>
+                </Stack>
                 </Stack>
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>

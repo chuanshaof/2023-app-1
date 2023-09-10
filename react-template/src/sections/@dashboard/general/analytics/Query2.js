@@ -70,7 +70,9 @@ export default function Query2() {
     return (
         <Box>
             <Box sx={{ minWidth: 120 }}>
-                <Stack direction="row" justifyContent={"space-between"} spacing={2} sx={{ p: 4 }}>
+                <Stack sx={{ p: 4 }}>
+                <Typography variant="h7"> Total Market Value [ Fund ] Query</Typography>
+                <Stack direction="row" justifyContent={"space-between"} spacing={2}>
                     <FormControl fullWidth>
                         <InputLabel>Fund ID</InputLabel>
                         <Select
@@ -93,6 +95,7 @@ export default function Query2() {
                     </LocalizationProvider>
 
                     <Button onClick={handleQuery}> Visualise </Button>
+                </Stack>
                 </Stack>
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>

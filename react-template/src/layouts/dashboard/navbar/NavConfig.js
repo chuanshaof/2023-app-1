@@ -31,7 +31,7 @@ const navConfig = [
       { title: 'app', path: PATH_DASHBOARD.general.app, icon: ICONS.analytics },
       { title: 'instruments', path: PATH_DASHBOARD.general.instruments, icon: ICONS.ecommerce },
       { title: 'funds', path: PATH_DASHBOARD.general.funds, icon: ICONS.banking },
-      { title: 'chat', path: PATH_DASHBOARD.general.chat.root, icon: ICONS.chat },
+      // { title: 'chat', path: PATH_DASHBOARD.general.chat.root, icon: ICONS.chat },
       // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics },
       // { title: 'banking', path: PATH_DASHBOARD.general.banking, icon: ICONS.banking },
       // { title: 'booking', path: PATH_DASHBOARD.general.booking, icon: ICONS.booking },

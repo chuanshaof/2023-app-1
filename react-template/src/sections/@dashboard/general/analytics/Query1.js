@@ -128,7 +128,8 @@ const SomeChart = (filterType) => {
     {filterType.filter === "sector" || filterType.filter === "country" ?
 
       <Card>
-        <CardHeader title="Current Visits" />
+        { filterType.filter === "sector" ? <CardHeader title="Breakdown by Sector" />  : <CardHeader title="Breakdown by Country" /> }
+
         <ChartWrapperStyle dir="ltr">
           <ReactApexChart type="pie" series={filterType.data.values} options={chartOptions} height={280} />
         </ChartWrapperStyle>
@@ -144,6 +145,7 @@ const SomeChart = (filterType) => {
   
               <Scrollbar>
                 <TableContainer sx={{ minWidth: 800 }}>
+                    <Typography>Breakdown by Instrument</Typography>
                   <Table>
                     <UserListHead
                       order={order}
@@ -230,15 +232,16 @@ export default function Query1() {
     //   const handleInstrumentChange = (e) =>{
     //     setInstrumentId(e.target.value)
     //   }
-    const handleCountryChange = (e) => {
-        setCountry(e.target.value)
-    }
-    const handleSectorChange = (e) => {
-        setSector(e.target.value)
-    }
+    // const handleCountryChange = (e) => {
+    //     setCountry(e.target.value)
+    // }
+    // const handleSectorChange = (e) => {
+    //     setSector(e.target.value)
+    // }
 
     const handleTypeChange = (e) => {
         setType(e.target.value)
+        setData(null)
     }
 
 
@@ -269,7 +272,9 @@ export default function Query1() {
         <Box>
             <Box sx={{ minWidth: 120 }}>
                 <Typography variant="h4">  Analytics </Typography>
-                <Stack direction="row" justifyContent={"space-between"} spacing={2} sx={{ p: 4 }}>
+                <Stack sx={{ p: 4 }}>
+                <Typography variant="h7"> Breakdown by Filter Query</Typography>
+                <Stack direction="row" justifyContent={"space-between"} spacing={2}>
                     <FormControl fullWidth>
                         <InputLabel>Fund ID</InputLabel>
                         <Select
@@ -302,6 +307,7 @@ export default function Query1() {
                     </LocalizationProvider>
 
                     <Button onClick={handleQuery}> Visualise </Button>
+                </Stack>
                 </Stack>
             </Box>
             <Container maxWidth={themeStretch ? false : 'xl'}>
