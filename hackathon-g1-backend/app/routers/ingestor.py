@@ -9,7 +9,7 @@ from ..models import Instruments, Pricing, Positions, Funds
 router = APIRouter()
 
 @router.post("/ingestor")
-def ingestor(file: UploadFile, db: Session = Depends(get_db)):
+def ingestor(file: UploadFile, db: Session = Depends(get_db)): 
     if not file:
         return {"error": "No file provided"}
     else:
@@ -62,9 +62,9 @@ def ingestor(file: UploadFile, db: Session = Depends(get_db)):
 
         df = df.replace({np.nan: None})
 
-        # Dropping "CASH" row
-        df = df[df["instrumentName"] != "CASH"]
-
+        # Dropping NOT NULL rows
+        df = df.dropna(subset=["unitPrice", "quantity", "realisedProfitLoss", "marketValue"])
+        
         '''
         Cross-check with `instrument` table
             1. "SECURITY_NAME" with "instrumentName" from instruments table
