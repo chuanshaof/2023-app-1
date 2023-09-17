@@ -1,8 +1,42 @@
-# React + Vite
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 1.Install
 
-Currently, two official plugins are available:
+### npm
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+npm i
+or
+npm i --legacy-peer-deps
+```
+
+### yarn
+
+```
+yarn install
+```
+
+## 2.Start
+
+```sh
+npm start
+or
+yarn start
+```
+
+## 3.Build
+
+```sh
+npm run build or yarn build
+```
+
+Builds the app for production to the `build` folder.<br>
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.<br>
+
+Your app is ready to be deployed.
+
+## User Guide
+
+You can find detailed instructions on using Create React App and many tips in [its documentation](https://facebook.github.io/create-react-app/).
