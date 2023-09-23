@@ -4,6 +4,16 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+# Essentially the database schema for MySQL
+# https://docs.sqlalchemy.org/en/13/orm/tutorial.html
+
+
+"""
+Most of the attributes for this table was created as according to the requirements of the hackathon
+
+'nullable' was not added to all attributes, albeit, it should have been
+"""
+
 class Instruments(Base):
     __tablename__ = 'instruments'
 

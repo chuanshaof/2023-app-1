@@ -6,7 +6,20 @@ from ..database import get_db
 
 router = APIRouter()
 
-# Covers the "entities" component
+"""
+Covers the "entities" component
+
+We should have used 'response_model' to define the output type
+This would have created better type checking through pydantics
+""" 
+from pydantic import BaseModel
+class PricingResponse(BaseModel):
+    instrumentId: int
+    unitPrice: float
+    reportedDate: str
+    createdAt: str
+    modifiedAt: str
+
 
 router = APIRouter(
     prefix="/price-values",

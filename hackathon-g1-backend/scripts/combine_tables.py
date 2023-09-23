@@ -8,6 +8,15 @@ insp = inspect(engine)
 names = insp.get_table_names()
 
 # %%
+"""
+Read the SQLite database as a pandas dataframe
+
+A total of 4 dataframes will be initialized:  
+    1. bond_prices
+    2. equity_prices
+    3. bond_reference
+    4. equity_reference
+"""
 tables = {}
 for name in names:
     df = pd.read_sql_table(name, con=engine)
@@ -34,6 +43,11 @@ print(equity_reference.columns)
 
 # %%
 # id starts at 1, dont include
+"""
+Map the original database columns to the output database columns
+
+Done for references table
+"""
 INSTRUMENTS_COLS = ["instrumentName", 
                     "instrumentType",
                     "currency",
@@ -84,6 +98,9 @@ print(bond_reference_map)
 print(equity_reference_map)
 
 # %%
+"""
+Renaming of columns to match the output database columns
+"""
 bond_ref_temp = bond_reference.rename(mapper=bond_reference_map, axis='columns')
 bond_ref_temp[INSTRUMENTS_COLS[1]] = 'Government Bond'
 eqty_ref_temp = equity_reference.rename(mapper=equity_reference_map, axis='columns')
@@ -94,6 +111,9 @@ print(bond_ref_temp.head(5))
 print(eqty_ref_temp.head(5))
 
 # %%
+"""
+Combining both bond and equity reference tables into one
+"""
 instruments = pd.DataFrame(columns=INSTRUMENTS_COLS)
 print(instruments)
 instruments = pd.concat([instruments, bond_ref_temp, eqty_ref_temp], ignore_index=True)
@@ -103,7 +123,11 @@ print(instruments)
 # %%
 
 # %%
+"""
+Map the original database columns to the output database columns
 
+Done for pricing table
+"""
 bond_prices_map = {
     "DATETIME": PRICES_COLS[2],
     "ISIN": INSTRUMENTS_COLS[3],
@@ -119,6 +143,7 @@ equity_prices_map = {
 # %%
 print(bond_prices.head(5))
 print(equity_prices.head(5))
+
 # %%
 bond_prc_temp = bond_prices.rename(mapper=bond_prices_map, axis='columns')
 eqty_prc_temp = equity_prices.rename(mapper=equity_prices_map, axis='columns')
@@ -131,6 +156,7 @@ print(eqty_prc_temp.head(5))
 for c in bond_prc_temp[INSTRUMENTS_COLS[3]]:
     print(instruments.loc[instruments[INSTRUMENTS_COLS[3]] == c].iloc[0].name)
     break
+
 # %%
 bond_prc_temp['instrumentId'] = [instruments.loc[instruments[INSTRUMENTS_COLS[3]] == c].iloc[0].name
                                  for c in bond_prc_temp[INSTRUMENTS_COLS[3]]]
@@ -142,20 +168,31 @@ print(bond_prc_temp.tail(20))
 print(eqty_prc_temp.head(20))
 
 # %%
+"""
+Combining bond & equity pricing tables
+"""
 pricing = pd.DataFrame(columns=PRICES_COLS)
 pricing = pd.concat([pricing, bond_prc_temp, eqty_prc_temp])[PRICES_COLS]
 print(pricing)
 
 # %%
+"""
+Date formatting
+"""
 pricing['reportedDate'] = pd.to_datetime(pricing['reportedDate'], format='mixed', dayfirst=False)
 print(pricing)
 
 # %%
+"""
+Convert individual dfs to csv files to prep for upload to RDS
+"""
 instruments.to_csv("./data/instruments.csv", index=True)
 pricing.to_csv("./data/pricing.csv", index=False)
 
 # %%
-
+"""
+In hindsight, this engine URL should have never been exposed and should have been in a .env file
+"""
 rds_engine = create_engine("mysql+pymysql://root:password@database.cxws32iitkns.ap-southeast-1.rds.amazonaws.com/gic-team01")
 insp = inspect(rds_engine)
 names = insp.get_table_names()
@@ -166,6 +203,10 @@ print(instruments)
 print(len(instruments))
 
 # %%
+"""
+Pushing the csv files to RDS database
+"""
 instruments.to_sql("instruments", rds_engine, if_exists='append')
+
 # %%
 pricing.to_sql("pricing", rds_engine, if_exists='append', index=False)

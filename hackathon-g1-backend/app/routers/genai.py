@@ -30,8 +30,28 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-chat = ChatAnthropic(anthropic_api_key=settings.ANTHROPIC_API_KEY)
+"""
+Comments on how the GenAI might be achieved
 
+Since the ChatAnthropic is stateless by default, in order for the chat to be able to return meaningful data, we need to pass in the context of the data
+
+Issue highlighted by Shane is that some API collects data, which can expose the data by accident. Not applicable in this Hackathon, but might be applicable in production
+
+Possible alternative methods:
+    1. Pass in the entire database for every query
+        1.1. An issue with this is SCALING. ChatAnthropic takes in a total of 100,000 token, which is OK for this dataset, but might not be OK for a larger dataset
+
+    2. Pass in the headers of the table
+        2.1. Much more scalable than the previous & exposes less info of the dataset
+        2.2. AI should know that SQL queries are the expected response
+        2.3. An expansion of the logic in the backend is required to handle the AI response & parse the data back to the user
+
+    3. Pass in a small set of data depending on what the user is asking for
+        3.1. Runs more efficiently and targetted
+        3.2. Team 9 did a thing to drag and drop the dataset, based on what the user is looking at
+"""
+
+chat = ChatAnthropic(anthropic_api_key=settings.ANTHROPIC_API_KEY)
 
 # tools = [
 #     StructuredTool.from_function(
@@ -91,6 +111,15 @@ class ContextQuery(BaseModel):
     query4: Optional[MonthlyReturnParams] = Field(None)
     query5: Optional[TopNParams] = Field(None)
 
+"""
+Attempts to pass in context to the chat
+
+This takes in a list of queries, meaning that the frontend will have to cache the queries and send them all at once
+
+It also follows a fixed template, which might not be ideal for the frontend to parse
+
+Issue is that no data is being passed into this, so the chatAI is unable to return any meaningful data
+"""
 @router.post("/query")
 def query_genai(params: ContextQuery):
     contexts = []
@@ -130,6 +159,11 @@ def query_genai(params: ContextQuery):
 class Query(BaseModel):
     query: str
 
+"""
+Most basic response that we could use, this was to test if the API was working
+
+This works essentially without any context other than the question posed, thus it does not give insights to the data itself
+"""
 @router.post("/test")
 def test_genai(query: Query):
     messages = [
