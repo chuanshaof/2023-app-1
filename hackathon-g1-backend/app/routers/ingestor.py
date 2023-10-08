@@ -4,8 +4,8 @@ import numpy as np
 import logging
 from dateutil import parser
 from sqlalchemy.orm import Session
-from ..database import get_db
-from ..models import Instruments, Pricing, Positions, Funds
+from database import get_db
+from models import Instruments, Pricing, Positions, Funds
 
 router = APIRouter()
 

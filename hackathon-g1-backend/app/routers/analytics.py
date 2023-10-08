@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session, aliased
 from sqlalchemy import select, func, and_
 from dateutil.relativedelta import relativedelta
 
-from ..database import get_db
-from ..models import Funds, Instruments, Positions
+from database import get_db
+from models import Funds, Instruments, Positions
 
 
 router = APIRouter()

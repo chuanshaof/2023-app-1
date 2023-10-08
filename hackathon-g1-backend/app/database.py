@@ -1,7 +1,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from .config import settings
+from config import settings
 
 """
 Connects to the AWS RDS instance using sessionmaker
